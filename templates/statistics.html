@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+
+{% block searchBar %}
+
+  <form>
+    <div class="form-row justify-content-center">
+      <div class="col-lg-2 mb-2">
+        <label for="searchCategory">Categroy</label>
+        <select class="form-control" id="searchCategory">
+          <option selected>All</option>
+          {% for cat in expCategories %}
+            <option value="{{ cat['id'] }}">{{ cat['label'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-lg-1 mb-2">
+        <label for="searchTimeframe">Timeframe</label>
+        <select class="form-control" id="searchTimeframe">
+          <option selected>Month</option>
+          <option>Year</option>
+        </select>
+      </div>
+      <div class="col-lg-1 mb-2">
+        <label for="searchPeriod">Month/Year</label>
+        <select class="form-control" id="searchPeriod">
+          <option selected>current month</option>
+          <option>Dec</option>
+          <option>Nov</option>
+          <option>Oct</option>
+        </select>
+      </div>
+      <div class="col-lg-1">
+        <button class="btn btn-primary w-100" type="submit" id="searchButton">Search</button>
+      </div>
+    </div>
+  </form>
+
+  <hr>
+
+{% endblock %}
+
+
+{% block expenseModalAction %}/{% endblock %}
+
+{% block incomeModalAction %}/{% endblock %}
+
+{% block tripModalAction %}/{% endblock %}
+
+
+{% block main %}
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,171 @@
+nav .navbar-brand
+{
+    /* size for brand */
+    font-size: xx-large;
+}
+
+main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+
+    /* override Bootstrap's 100% width for form controls */
+    width: auto;
+}
+
+main
+{
+    /* scroll horizontally as needed */
+    overflow-x: auto;
+
+    /* center contents */
+    text-align: center;
+}
+
+main img
+{
+    /* constrain images on small screens */
+    max-width: 100%;
+}
+
+
+.floating-btn {
+        width: 50px;
+        height: 50px;
+        background: #008987;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 25px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+        position: fixed;
+        transition: background 0.25s;
+
+        outline: none;
+        border: none;
+        cursor: pointer;
+      }
+
+.floating-btn:focus {
+    outline: none;
+}
+
+
+.floating-btn:active {
+    background: #006785;
+}
+
+.pos1 {
+    right: 20px;
+    bottom: 20px;
+}
+
+.pos2 {
+    right: 20px;
+    bottom: 80px;
+}
+
+.pos3 {
+    right: 20px;
+    bottom: 140px;
+}
+
+
+.fab-container {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 999;
+    cursor: pointer;
+}
+
+/* Blaue und Rote Kreise */
+.fab-icon-holder {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    background: #0099ff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.fab-icon-holder:hover {
+    opacity: 0.8;
+}
+
+/* Blaue Kreise */
+.fab-icon-holder i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100%;
+    color: white;
+}
+
+/* Roter Kreis */
+.fab {
+    width: 60px;
+    height: 60px;
+    background: #009973;
+}
+
+/* Liste */
+.fab-options {
+    list-style-type: none;
+    margin: 0;
+
+    position: absolute;
+    right: 0px;
+    bottom: 70px;
+
+    opacity: 0;
+
+    transition: all 0.3s ease;
+    transform: scale(0);
+    transform-origin: 85% bottom;
+}
+
+.fab:hover + .fab-options, .fab-options:hover {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Listenelemente */
+.fab-options li {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px;
+}
+
+/* Beschriftung der Optionen */
+.fab-label {
+    padding: 2px 5px;
+    align-self: center;
+    user-select: none;
+    white-space: nowrap;
+
+    border-radius: 3px;
+    font-size: 16px;
+    background: #666666;
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    margin-right: 10px;
+}
+
+.forms {
+    position: relative;
+    list-style-type: none;
+    float: left;
+}
+
+.forms li {
+    display: flex;
+    justify-content: flex-start;
+    padding: 5px;
+}
+
+
+

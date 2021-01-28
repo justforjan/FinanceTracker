@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- documentation at http://getbootstrap.com/docs/4.1/, alternative themes at https://bootswatch.com/ -->
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- https://favicon.io/emoji-favicons/money-mouth-face/ -->
+        <link href="/static/favicon.ico" rel="icon">
+
+        <!-- Google Material Desing -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+
+        <link href="/static/styles.css" rel="stylesheet">
+
+        <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=wmlEES2TAvS6aNf7BLtb2RY_V6XWlVcsyEgCNAqSXQlBCJ1hQCD_5L7DQK_qUwwfHTOjssobms_HYhReTgY54t2w9Xt2QVi6xE2ekGbosSqxk2hEnxiJclXGp5jMjaOzFgw-m6kflfPS4Qw2IiMj7HKrOw2LFdm_sjaoZq_SN5VYdR2hrUMGBl9c12DxzaRD" charset="UTF-8"></script><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=jvWYfcC9Uxtbu_3cbOVJ8755iL78Q0ANeW9O4Ykd78GrHzLM399YAFSWDYCBGPozRJdliGH9YlhLy4S4F8hJIaGtxAJoHdcc-GbczjREJuLQdnFF6eqvI6qnJgbppSvJBZCx6Mw2sf45--ioT-6MaIVNV1T-zkR94M2nRDaHu1wC-vJftPmbkozvhbOgTVHG" charset="UTF-8"></script><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=nZVkdkZnzo5Mbz7Juq2hY6HCmoHLwwGbQET5Cul68ICMkk9jJJuLV7mXAaTmv6miDccmtM2rvTAJzsxWSDMNyEiyIiFtPuFTvmBQF__fRSFe0JS3jeiTYmRMlu7W9uCSHymgg_60C6oB-mevPniMZVDR_lcn5dYzE37uCVTxJtq76X7HRmY6ljeape1KkAf7" charset="UTF-8"></script><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=rWQCugJsLRPMHU0STrcxLIWac0-uiq3Mqzsoakedthy1ESy-dUU2i2hVR4cq6gaomKnfPTaj0bBbC3Ae4J5VnUrgXxPzVihlEs_sgBng0db9D09RHCxvjkhpu-8ylUXA-otGEEspDvd1Q15uryqeohYSU6DMMYgPVV16hgHJhY72zESF0R39YUKB9X02cqmH" charset="UTF-8"></script><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=-VTn317BU1Yvwqg57tu2mMecLaNRxyZH0EM7BhHwvS9vWy6_Rcb_sphIWOJYhjjhW1llVrDAhDVwdMd_rdNhTY1n20d84JdjltUEYBiIACuwO6M-bSDjBk4Qr6gvNz_E-b1Eg1U4pzZxCR2y87ipi81eCtd5_bHfb8jNftaro_bA9tSbnQC967ppZe3_mEOn" charset="UTF-8"></script><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=vDwBz_syxlaN7_3CymJzgyAmGDfdhzqQSeh3VwMgWu-9hc3no31WQUpOOGwYdqykpRc2B6jhUl99ioxRFqwy7Ta3BH3RZ_e0BHiNPdV1LfMKUuJ4zJU1b29bX10HLkG1KRdxWpt1VIqZGlzvIl_f6bcCtyxWdfJaXzUmRTBEOLOFP3vk3r02QZ9hXnxyF1RB" charset="UTF-8"></script><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=U2TeOQ2LH76z5VP0ptHP-onG3wt_J9CH0BkL1zNS2z2kVQ-2B88R08LWL4BlGuWoLmh9WnOcLhmZqNBS8N8VY8fMIJ9zoSzElw-jjJnxO6VPPDgh1UYNxubjiYZMyO8IdQRuYS0-xyZQoN82vwPRY8vC9PJDn4cjcuSTyNUWHonnpw1pZyrC6qpmWCHsvl25" charset="UTF-8"></script><script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+        <script src="/static/functions.js"></script>
+
+        <title>Finance Tracker: {% block title %}{% endblock %}</title>
+
+    </head>
+
+    <body {% block body %} {% endblock %}>
+
+        <nav class="navbar navbar-expand-md navbar-light bg-light border">
+            <a class="navbar-brand" href="/">Finance Tracker</a>
+            <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                {% if session.user_id %}
+                    <ul class="navbar-nav mr-auto mt-2">
+                        <li class="nav-item"><a class="nav-link" href="/statistics">Statistics</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/trips">Trips</a></li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto mt-2">
+                        <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav ml-auto mt-2">
+                        <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
+                    </ul>
+                {% endif %}
+            </div>
+        </nav>
+
+
+        {% if get_flashed_messages() %}
+
+            <header>
+                <div class="alert alert-primary border text-center" role="alert">
+                    {{ get_flashed_messages() | join(" ") }}
+                </div>
+            </header>
+
+        {% endif %}
+
+
+        {% if session.user_id %}
+
+        <!-- FLoating Button -->
+        <div class="fab-container">
+            <div class="fab fab-icon-holder bg-primary text-white">
+                <i class="material-icons">add</i>
+            </div>
+            <ul class="fab-options">
+                <li id="addExpense" data-toggle="modal" data-target="#expModal">
+                    <span class="fab-label bg-secondary text-white">Add Expense</span>
+                    <div class="fab-icon-holder  bg-secondary text-white">
+                        <i class="material-icons">shopping_cart</i>
+                    </div>
+                </li>
+                <li id="addIncome" data-toggle="modal" data-target="#incModal">
+                    <span class="fab-label  bg-secondary text-white">Add Income</span>
+                    <div class="fab-icon-holder  bg-secondary text-white">
+                        <i class="material-icons">card_giftcard</i>
+                    </div>
+                </li>
+                <li id="addTrip" data-toggle="modal" data-target="#tripModal">
+                    <span class="fab-label  bg-secondary text-white">Add Trip</span>
+                    <div class="fab-icon-holder  bg-secondary text-white">
+                        <i class="material-icons">flight</i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Expense Modal-->
+        <div class="modal fade" id="expModal">
+          <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0">
+              <div class="modal-header bg-primary text-white justify-content-center">
+                <h1>Add Expense</h1>
+              </div>
+              <div class="modal-body">
+                  <form id="expForm" method="post" action="/addExpenseIncomeTrip">
+                      <div class="form-group">
+                        <label for="expDate" class="font-weight-bold">Date:</label> <br>
+                        <input autofocus class="form-control w-100" name="expDate" placeholder="Enter Date" id="expDate" type="date" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="expAccount" class="font-weight-bold" disabled>Account:</label> <br>
+                        <select disabled class="form-control w-100" name="account" placeholder="Enter Account" id="expAccount" type="text">
+                            <option selected>Account</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="expCategory" class="font-weight-bold">Category:</label> <br>
+                        <select class="form-control w-100" name="category" placeholder="Choose Category" id="expCategory" type="text" required>
+                          <option disabled selected value="">Category</option>
+                          {% for cat in expCategories %}
+                            <option value="{{ cat['id'] }}">{{ cat['label'] }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="expTrip" class="font-weight-bold">Trip or Home:</label> <br>
+                        <select class="form-control w-100" name="trip" placeholder="Enter Trip or Home" id="expTrip" type="text" required>
+                            <option selected value="1">Home</option>
+                            {% for trip in trips %}
+                              <option value="{{ trip['id'] }}">{{ trip['title'] }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="expAmount" class="font-weight-bold">Amount:</label> <br>
+                        <input class="form-control w-100" name="expAmount" lang="en_EN" placeholder="Enter Amount" id="expAmount" min="0" step="0.01" type="number" required>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="expNotes" class="font-weight-bold">Notes:</label> <br>
+                        <input class="form-control w-100" name="expNotes" placeholder="Enter Notes" id="expNotes" type="text">
+                      </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="container">
+                      <div class="row">
+                          <div class="col">
+                              <input type="submit" class="btn btn-primary btn-block" value="Save" form="expForm">
+                              <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Income Modal -->
+        <div class="modal fade" id="incModal">
+          <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0">
+              <div class="modal-header bg-primary text-white justify-content-center">
+                <h1>Add Income</h1>
+              </div>
+              <div class="modal-body">
+                  <form id="incForm" style="text-align: left;" method="post" action="/addExpenseIncomeTrip">
+                      <div class="form-group">
+                        <label for="incDate" class="font-weight-bold">Date:</label> <br>
+                        <input autofocus class="form-control w-100" name="incDate" placeholder="Enter Date" id="incDate" type="date">
+                      </div>
+                      <div class="form-group">
+                        <label for="incAccount" class="font-weight-bold" disabled>Account:</label> <br>
+                        <select disabled class="form-control w-100" name="account" placeholder="Enter Account" id="incAccount" type="text">
+                            <option selected>Account</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="incAmount" class="font-weight-bold">Amount:</label> <br>
+                        <input class="form-control w-100" name="incAmount" lang="en_EN" placeholder="Enter Amount" id="incAmount" min="0" step="0.01" type="number">
+                      </div>
+                      <div class="form-group">
+                        <label for="incNotes" class="font-weight-bold">Notes:</label> <br>
+                        <input class="form-control w-100" name="incNotes" placeholder="Enter Notes" id="incNotes" type="text">
+                      </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="container">
+                      <div class="row">
+                          <div class="col">
+                              <input type="submit" class="btn btn-primary btn-block" value="Save" form="incForm">
+                              <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trip Modal -->
+        <div class="modal fade" id="tripModal">
+          <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0">
+              <div class="modal-header bg-primary text-white justify-content-center">
+                <h1>Add Trip</h1>
+              </div>
+              <div class="modal-body">
+                  <form id="tripForm" style="text-align: left;" action="/addExpenseIncomeTrip" method="post">
+                      <div class="form-group">
+                        <label for="tripTitle" class="font-weight-bold">Trip Title:</label> <br>
+                        <input class="form-control w-100" name="tripTitle" placeholder="Choose Trip Title" id="tripTitle" type="text" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="startDate" class="font-weight-bold">Start Date:</label> <br>
+                        <input autofocus class="form-control w-100" name="startDate" placeholder="Enter Start Date" id="startDate" type="date" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="endDate" class="font-weight-bold">End Date:</label> <br>
+                        <input autofocus class="form-control w-100" name="endDate" placeholder="Enter End Date" id="endDate" type="date" required>
+                      </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="container">
+                      <div class="row">
+                          <div class="col">
+                              <input type="submit" class="btn btn-primary btn-block" value="Save" form="tripForm">
+                              <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% endif %}
+
+        <div class="container-fluid mt-3">
+
+        {% block searchBar %} {% endblock %}
+
+        </div>
+
+        <main class="container p-5">
+
+        {% block main %}{% endblock %}
+
+        </main>
+
+        <footer class="small text-center text-muted">
+
+        </footer>
+
+    </body>
+
+</html>

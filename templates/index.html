@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+
+{% block searchBar %}
+
+  <form>
+      <div class="form-row justify-content-center">
+        <div class="col-lg-2 mb-2">
+           <label for"searchCategory">Category</label>
+          <select class="form-control" placeholder="Choose Category" id="searchCategory">
+            <option disabled selected>Category</option>
+            {% for cat in expCategories %}
+              <option value="{{ cat['id'] }}">{{ cat['label'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-lg-4 mb-2">
+          <label for="searchSearch">What do you want to look for?</label>
+          <input class="form-control" placeholder="Search" id="searchSearch">
+        </div>
+        <div class="col-xs-2 mb-2">
+          <label for"searchMin">Minimum Amount</label>
+          <input class="form-control w-100" placeholder="min" min="0" step="0.01" id="searchMin" type="number">
+        </div>
+        <div class="col-xs-2 mb-2">
+          <label for"searchMax">Maximum Amount</label>
+          <input class="form-control w-100" placeholder="max" min="0" step="0.01" id="searchMin" type="number">
+        </div>
+        <div class="col-lg-2 mb-2">
+          <label for"searchMonth">Month</label>
+          <select class="form-control" id="searchMonth">
+            <option selected>Jan</option>
+            <option>Dec</option>
+            <option>Nov</option>
+          </select>
+        </div>
+        <div class="col-lg-1">
+          <button class="btn btn-primary w-100" type="submit">Search</button>
+        </div>
+      </div>
+  </form>
+
+  <hr>
+
+{% endblock %}
+
+
+
+
+{% block main %}
+
+<!--
+{% for day in days %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">{{ day }} Month</th>
+      <th scope="col">-</th>
+      <th scope="col" class="danger">sum income</th>
+      <th scope="col" class="success">sum expenses</th>
+      <th scope="col">-</th>
+    </tr>
+  </thead>
+
+  {% for transaction in transactions %}
+
+  <tbody>
+    <tr>
+      <td>
+        {% if transaction['exp'] == 1 %}}
+          {{ transaction['expCategory'] }}
+        {% endif %}
+      </td>
+      <td>{{ transaction['notes'] }}</td>
+      <td>
+        {% if transaction['exp'] == 0 %}}
+          {{ transaction['amount'] }}
+        {% endif %}
+      </td>
+      <td>
+        {% if transaction['exp'] == 1 %}}
+          {{ transaction['amount'] }}
+        {% endif %}
+      </td>
+      <td>
+        <button class="button" href="">Edit</button>
+        <button class="button" href="">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+
+  {% endfor %}
+
+</table>
+
+
+{% endfor %}
+-->
+
+<table class="table">
+  <thead>
+    <tr class="text-left">
+      <th scope="col">-</th>
+      <th scope="col">-</th>
+      <th scope="col">-</th>
+      <th scope="col" class="text-success">sum income</th>
+      <th scope="col" class="text-danger">sum expenses</th>
+      <th scope="col">-</th>
+    </tr>
+  </thead>
+
+  {% for transaction in transactions %}
+
+  <tbody>
+    <tr class="text-left">
+      <td>{{ transaction['timestamp'] }}</td>
+      <td>
+        {% if transaction['exp'] == 1 %}
+          {{ transaction['label'] }}
+        {% endif %}
+      </td>
+      <td>{{ transaction['notes'] }}</td>
+      <td class="text-success">
+        {% if transaction['exp'] == 0 %}
+          {{ transaction['amount'] }}
+        {% endif %}
+      </td>
+      <td class="text-danger">
+        {% if transaction['exp'] == 1 %}
+          {{ transaction['amount'] }}
+        {% endif %}
+      </td>
+      <td>
+        <button type="button" class="btn btn-outline-primary" href="">Edit</button>
+        <button type="button" class="btn btn-outline-primary" href="">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+
+  {% endfor %}
+
+</table>
+
+
+{% endblock %}
