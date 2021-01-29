@@ -49,19 +49,11 @@ def index():
 
     if request.method == "GET":
 
-        transactions = getTransactions()
-
-        # for transaction in transactions:
-        #     transaction['datetime'] = datetime.datetime.strptime(transaction['timestamp'], %Y-%m-d)
-
-        # transactions_sorted = sorted(transactions, key=lambda k: k['datetime'])
+        transactions = getTransactionsCurrentMonth()
+        transactionsGroupedByDay = getTransactionsCurrentMonthGroupedByDay()
 
 
-
-        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), transactions=transactions)
-
-
-
+        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), transactions=transactions, days=transactionsGroupedByDay)
 
 
 @app.route("/statistics", methods=["GET", "POST"])
@@ -243,6 +235,26 @@ def getTransactions():
     return db.execute("SELECT * FROM transactions LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id WHERE user_id = :user_id ORDER BY transactions.timestamp DESC", user_id=session['user_id'])
 
 
+def getTransactionsCurrentMonthGroupedByDay():
+    return db.execute("""
+        SELECT SUM(amount) AS total_amount, strftime('%Y', timestamp) AS year, strftime('%m', timestamp) AS month, strftime('%d', timestamp) AS day
+        FROM transactions
+        WHERE exp = 1 AND user_id = :user_id AND year = strftime('%Y', 'now') AND month = strftime('%m', 'now')
+        GROUP BY year, month, day
+        ORDER by timestamp DESC
+        """,
+        user_id=session['user_id'])
+
+def getTransactionsCurrentMonth():
+    return db.execute("""
+        SELECT transactions.id, transactions.notes, transactions.amount, transactions.exp, transactions.timestamp, expCategories.label AS category, strftime('%Y', transactions.timestamp) AS year, strftime('%m', transactions.timestamp) AS month, strftime('%d', transactions.timestamp) AS day
+        FROM transactions LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
+        WHERE user_id = :user_id AND year = strftime('%Y', 'now') AND month = strftime('%m', 'now')
+        ORDER BY transactions.timestamp DESC
+        """,
+        user_id=session['user_id'])
+
+
 def returnToStart():
     return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), transactions=getTransactions())
 
@@ -273,7 +285,7 @@ def addExpense():
     category = int(request.form.get("category"))
     trip = int(request.form.get("trip"))
     amount = float(request.form.get("expAmount"))
-    amount = float(f"{amount:,.2f}")
+    amount = float(f"{amount:,.2f}") * (-1)
     notes = request.form.get("expNotes")
     exp = True
 

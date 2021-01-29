@@ -102,6 +102,7 @@
 {% endfor %}
 -->
 
+<!--
 <table class="table">
   <thead>
     <tr class="text-left">
@@ -120,19 +121,21 @@
     <tr class="text-left">
       <td>{{ transaction['timestamp'] }}</td>
       <td>
-        {% if transaction['exp'] == 1 %}
+        {% if transaction['amount'] < 0 %}
           {{ transaction['label'] }}
         {% endif %}
       </td>
-      <td>{{ transaction['notes'] }}</td>
+      <td>{{ transaction['notes'] }}</td>-->
+      <!-- Income --><!--
       <td class="text-success">
-        {% if transaction['exp'] == 0 %}
+        {% if transaction['amount'] > 0  %}
           {{ transaction['amount'] }}
         {% endif %}
-      </td>
+      </td>-->
+      <!-- Expense --><!--
       <td class="text-danger">
-        {% if transaction['exp'] == 1 %}
-          {{ transaction['amount'] }}
+        {% if transaction['amount'] < 0 %}
+          {{ transaction['amount']  * (-1) }}
         {% endif %}
       </td>
       <td>
@@ -145,6 +148,64 @@
   {% endfor %}
 
 </table>
+-->
+
+
+
+
+{% for day in days %}
+
+<table class="table">
+  <thead>
+    <tr class="text-left">
+      <th scope="col">{{ day['day'] }}</th>
+      <th scope="col">-</th>
+      <th scope="col">-</th>
+      <th scope="col" class="text-success">sum expenses</th>
+      <th scope="col" class="text-danger">{{ day['total_amount'] * (-1) }}</th>
+      <th scope="col">-</th>
+    </tr>
+  </thead>
+
+  {% for transaction in transactions %}
+
+
+
+  <tbody>
+    <tr class="text-left">
+      <td>{{ transaction['timestamp'] }}</td>
+      <td>
+        {% if transaction['exp'] == 1 %}
+          {{ transaction['label'] }}
+        {% endif %}
+      </td>
+      <td>{{ transaction['notes'] }}</td>
+      <!-- Income -->
+      <td class="text-success">
+        {% if transaction['exp'] == 0  %}
+          {{ transaction['amount'] }}
+        {% endif %}
+      </td>
+      <!-- Expense -->
+      <td class="text-danger">
+        {% if transaction['exp'] == 1 %}
+          {{ transaction['amount']  * (-1) }}
+        {% endif %}
+      </td>
+      <td>
+        <button type="button" class="btn btn-outline-primary" href="">Edit</button>
+        <button type="button" class="btn btn-outline-primary" href="">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+
+
+
+  {% endfor %}
+
+</table>
+
+{% endfor %}
 
 
 {% endblock %}
