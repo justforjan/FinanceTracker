@@ -1,0 +1,57 @@
+<div id="monthly_expenses">
+{% for day in days %}
+
+  <div class="table-responsive pb-5 rounded">
+
+    <table class="table table-hover shadow-sm border">
+      <thead class="thead-light rounded-top">
+        <tr class="text-left d-flex">
+          <th scope="col" class="col-2 bg-primary text-center text-white">{{ day['DAY'] }}.{{ day['MONTH'] }}</th>
+          <th scope="col" class="col-4"></th>
+          <th scope="col" class="text-success col">€ {{ day['inc_per_day'] }}</th>
+          <th scope="col" class="text-danger col">€ {{ day['exp_per_day'] * (-1) }}</th>
+          <th scope="col" class="col-2">€ {{ day['saldo'] }}</th>
+        </tr>
+      </thead>
+
+      {% for transaction in day['transactions'] %}
+
+      <tbody>
+        <tr class="text-left d-flex">
+          <td class="col-2">
+            {% if transaction['exp'] == 1 %}
+              {{ transaction['category'] }}
+            {% endif %}
+          </td>
+          <td class="col-4">
+            {% if transaction['notes'] %}
+              <i>{{ transaction['notes'] }}</i>
+            {% endif %}
+          </td>
+          <!-- Income -->
+          <td class="col text-success">
+            {% if transaction['exp'] == 0  %}
+              € {{ transaction['amount'] }}
+            {% endif %}
+          </td>
+          <!-- Expense -->
+          <td class="col text-danger">
+            {% if transaction['exp'] == 1 %}
+              € {{ transaction['amount']  * (-1) }}
+            {% endif %}
+          </td>
+          <td class="col-2">
+            <button type="button" class="btn btn-outline-primary" href="">Edit</button>
+            <button type="button" class="btn btn-outline-primary" href="">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+
+      {% endfor %}
+
+    </table>
+
+  </div>
+
+{% endfor %}
+</div>

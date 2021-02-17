@@ -52,160 +52,177 @@
 
 
 {% block main %}
+<div>
+  <p>January 2021</p>
+</div>
+<div class="btn-group mb-5" role="group" aria-label="Basic example">
+  <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeToPrevMonth()">keyboard_arrow_left</button>
+  <button type="button" class="btn btn-primary material-icons" id="next_month" >keyboard_arrow_right</button>
+</div>
 
-<!--
+
+<div id="monthly_expenses">
 {% for day in days %}
 
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">{{ day }} Month</th>
-      <th scope="col">-</th>
-      <th scope="col" class="danger">sum income</th>
-      <th scope="col" class="success">sum expenses</th>
-      <th scope="col">-</th>
-    </tr>
-  </thead>
+  <div class="table-responsive pb-5 rounded">
 
-  {% for transaction in transactions %}
+    <table class="table table-hover shadow-sm border">
+      <thead class="thead-light rounded-top">
+        <tr class="text-left d-flex">
+          <th scope="col" class="col-2 bg-primary text-center text-white">{{ day['DAY'] }}.{{ day['MONTH'] }}</th>
+          <th scope="col" class="col-4"></th>
+          <th scope="col" class="text-success col">€ {{ day['inc_per_day'] }}</th>
+          <th scope="col" class="text-danger col">€ {{ day['exp_per_day'] * (-1) }}</th>
+          <th scope="col" class="col-2">€ {{ day['saldo'] }}</th>
+        </tr>
+      </thead>
 
-  <tbody>
-    <tr>
-      <td>
-        {% if transaction['exp'] == 1 %}}
-          {{ transaction['expCategory'] }}
-        {% endif %}
-      </td>
-      <td>{{ transaction['notes'] }}</td>
-      <td>
-        {% if transaction['exp'] == 0 %}}
-          {{ transaction['amount'] }}
-        {% endif %}
-      </td>
-      <td>
-        {% if transaction['exp'] == 1 %}}
-          {{ transaction['amount'] }}
-        {% endif %}
-      </td>
-      <td>
-        <button class="button" href="">Edit</button>
-        <button class="button" href="">Delete</button>
-      </td>
-    </tr>
-  </tbody>
+      {% for transaction in day['transactions'] %}
 
-  {% endfor %}
+      <tbody>
+        <tr class="text-left d-flex">
+          <td class="col-2">
+            {% if transaction['exp'] == 1 %}
+              {{ transaction['category'] }}
+            {% endif %}
+          </td>
+          <td class="col-4">
+            {% if transaction['notes'] %}
+              <i>{{ transaction['notes'] }}</i>
+            {% endif %}
+          </td>
+          <!-- Income -->
+          <td class="col text-success">
+            {% if transaction['exp'] == 0  %}
+              € {{ transaction['amount'] }}
+            {% endif %}
+          </td>
+          <!-- Expense -->
+          <td class="col text-danger">
+            {% if transaction['exp'] == 1 %}
+              € {{ transaction['amount']  * (-1) }}
+            {% endif %}
+          </td>
+          <td class="col-2">
+            <button type="button" class="btn btn-outline-primary" href="" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1%} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
+            <button type="button" class="btn btn-outline-primary" href="" value="{{ transaction['id'] }}">Delete</button>
+          </td>
+        </tr>
+      </tbody>
 
-</table>
+      {% endfor %}
 
+    </table>
 
-{% endfor %}
--->
-
-<!--
-<table class="table">
-  <thead>
-    <tr class="text-left">
-      <th scope="col">-</th>
-      <th scope="col">-</th>
-      <th scope="col">-</th>
-      <th scope="col" class="text-success">sum income</th>
-      <th scope="col" class="text-danger">sum expenses</th>
-      <th scope="col">-</th>
-    </tr>
-  </thead>
-
-  {% for transaction in transactions %}
-
-  <tbody>
-    <tr class="text-left">
-      <td>{{ transaction['timestamp'] }}</td>
-      <td>
-        {% if transaction['amount'] < 0 %}
-          {{ transaction['label'] }}
-        {% endif %}
-      </td>
-      <td>{{ transaction['notes'] }}</td>-->
-      <!-- Income --><!--
-      <td class="text-success">
-        {% if transaction['amount'] > 0  %}
-          {{ transaction['amount'] }}
-        {% endif %}
-      </td>-->
-      <!-- Expense --><!--
-      <td class="text-danger">
-        {% if transaction['amount'] < 0 %}
-          {{ transaction['amount']  * (-1) }}
-        {% endif %}
-      </td>
-      <td>
-        <button type="button" class="btn btn-outline-primary" href="">Edit</button>
-        <button type="button" class="btn btn-outline-primary" href="">Delete</button>
-      </td>
-    </tr>
-  </tbody>
-
-  {% endfor %}
-
-</table>
--->
-
-
-
-
-{% for day in days %}
-
-<table class="table">
-  <thead>
-    <tr class="text-left">
-      <th scope="col">{{ day['day'] }}</th>
-      <th scope="col">-</th>
-      <th scope="col">-</th>
-      <th scope="col" class="text-success">sum expenses</th>
-      <th scope="col" class="text-danger">{{ day['total_amount'] * (-1) }}</th>
-      <th scope="col">-</th>
-    </tr>
-  </thead>
-
-  {% for transaction in transactions %}
-
-
-
-  <tbody>
-    <tr class="text-left">
-      <td>{{ transaction['timestamp'] }}</td>
-      <td>
-        {% if transaction['exp'] == 1 %}
-          {{ transaction['label'] }}
-        {% endif %}
-      </td>
-      <td>{{ transaction['notes'] }}</td>
-      <!-- Income -->
-      <td class="text-success">
-        {% if transaction['exp'] == 0  %}
-          {{ transaction['amount'] }}
-        {% endif %}
-      </td>
-      <!-- Expense -->
-      <td class="text-danger">
-        {% if transaction['exp'] == 1 %}
-          {{ transaction['amount']  * (-1) }}
-        {% endif %}
-      </td>
-      <td>
-        <button type="button" class="btn btn-outline-primary" href="">Edit</button>
-        <button type="button" class="btn btn-outline-primary" href="">Delete</button>
-      </td>
-    </tr>
-  </tbody>
-
-
-
-  {% endfor %}
-
-</table>
+  </div>
 
 {% endfor %}
+</div>
 
+
+<!-- Edit Expense Modal-->
+<div class="modal fade" id="editExpModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+        <h1>Edit Expense</h1>
+      </div>
+      <div class="modal-body">
+          <form id="expForm" method="post" action="/addExpenseIncomeTrip">
+              <div class="form-group">
+                <label for="editExpDate" class="font-weight-bold">Date:</label> <br>
+                <input autofocus class="form-control w-100" name="editExpDate" placeholder="Enter Date" id="editExpDate" type="date" required>
+              </div>
+              <div class="form-group">
+                <label for="editExpAccount" class="font-weight-bold" disabled>Account:</label> <br>
+                <select disabled class="form-control w-100" name="account" placeholder="Enter Account" id="editExpAccount" type="text">
+                    <option selected>Account</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editExpCategory" class="font-weight-bold">Category:</label> <br>
+                <select class="form-control w-100" name="editExpCategory" placeholder="Choose Category" id="editExpCategory" type="text" required>
+                  <option disabled selected value="">Category</option>
+                  {% for cat in expCategories %}
+                    <option value="{{ cat['id'] }}">{{ cat['label'] }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editExpTrip" class="font-weight-bold">Trip or Home:</label> <br>
+                <select class="form-control w-100" name="editExpTrip" placeholder="Enter Trip or Home" id="editExpTrip" type="text" required>
+                    <option selected value="1">Home</option>
+                    {% for trip in trips %}
+                      <option value="{{ trip['id'] }}">{{ trip['title'] }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editExpAmount" class="font-weight-bold">Amount:</label> <br>
+                <input class="form-control w-100" name="editExpAmount" lang="en_EN" placeholder="Enter Amount" id="editExpAmount" min="0" step="0.01" type="number" value="{{ days[0]['transactions'][0]['amount'] * (-1)}}" required>
+              </div>
+              <div class="form-group">
+                <label for="editExpNotes" class="font-weight-bold">Notes:</label> <br>
+                <input class="form-control w-100" name="editExpNotes" placeholder="Enter Notes" id="editExpNotes" type="text">
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                <div class="col">
+                    <input type="submit" class="btn btn-primary btn-block" value="Save" form="expForm">
+                    <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit Income Modal -->
+<div class="modal fade" id="editIncModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+        <h1>Edit Income</h1>
+      </div>
+      <div class="modal-body">
+          <form id="incForm" style="text-align: left;" method="post" action="/addExpenseIncomeTrip">
+              <div class="form-group">
+                <label for="incDate" class="font-weight-bold">Date:</label> <br>
+                <input autofocus class="form-control w-100" name="incDate" placeholder="Enter Date" id="incDate" type="date">
+              </div>
+              <div class="form-group">
+                <label for="incAccount" class="font-weight-bold" disabled>Account:</label> <br>
+                <select disabled class="form-control w-100" name="account" placeholder="Enter Account" id="incAccount" type="text">
+                    <option selected>Account</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="incAmount" class="font-weight-bold">Amount:</label> <br>
+                <input class="form-control w-100" name="incAmount" lang="en_EN" placeholder="Enter Amount" id="incAmount" min="0" step="0.01" type="number">
+              </div>
+              <div class="form-group">
+                <label for="incNotes" class="font-weight-bold">Notes:</label> <br>
+                <input class="form-control w-100" name="incNotes" placeholder="Enter Notes" id="incNotes" type="text">
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                  <div class="col">
+                      <input type="submit" class="btn btn-primary btn-block" value="Save" form="incForm">
+                      <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

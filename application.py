@@ -42,6 +42,8 @@ Session(app)
 db = SQL("sqlite:///financetracker.db")
 
 
+
+
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
@@ -50,10 +52,40 @@ def index():
     if request.method == "GET":
 
         transactions = getTransactionsCurrentMonth()
-        transactionsGroupedByDay = getTransactionsCurrentMonthGroupedByDay()
+        days = getTransactionsCurrentMonthGroupedByDay()
+
+        for day in days:
+            day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
+
+        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), days=days)
 
 
-        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), transactions=transactions, days=transactionsGroupedByDay)
+@app.route("/changeToPrevMonth", methods=["POST"])
+def changeToPrevMonth():
+
+    transactions = db.execute("""
+        SELECT transactions.id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
+        FROM transactions
+        LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
+        WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', 'now') AND strftime('%m', transactions.timestamp) = '01'
+        ORDER BY transactions.timestamp DESC""",
+        user_id=session['user_id'])
+
+
+    days = db.execute("""
+        SELECT SUM(CASE WHEN exp = 1 THEN amount ELSE 0 END) AS exp_per_day, SUM(CASE WHEN exp = 0 THEN amount ELSE 0 END) AS inc_per_day, SUM(amount) AS saldo,  strftime('%Y', timestamp) AS year, strftime('%m', timestamp) AS month, STRFTIME('%d', timestamp) AS day
+        FROM transactions
+        WHERE user_id = :user_id AND year = strftime('%Y', 'now') AND month = '01'
+        GROUP BY year, month, day
+        ORDER by timestamp DESC""",
+        user_id=session['user_id'])
+
+    for day in days:
+        day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
+
+
+    return jsonify('', render_template('temp.html', days=days))
+
 
 
 @app.route("/statistics", methods=["GET", "POST"])
@@ -127,6 +159,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
+        session["current_month"] = "" #TODO
 
         # Redirect user to home page
         return redirect("/")
@@ -228,7 +261,7 @@ def getExpCategories():
 
 
 def getTrips():
-    return db.execute("SELECT id, title, startDate, endDate FROM trips WHERE user_id = :user_id",
+    return db.execute("SELECT id, title, startDate, endDate FROM trips WHERE user_id = :user_id ORDER BY startDate DESC",
                         user_id=session['user_id'])
 
 def getTransactions():
@@ -237,22 +270,23 @@ def getTransactions():
 
 def getTransactionsCurrentMonthGroupedByDay():
     return db.execute("""
-        SELECT SUM(amount) AS total_amount, strftime('%Y', timestamp) AS year, strftime('%m', timestamp) AS month, strftime('%d', timestamp) AS day
+        SELECT SUM(CASE WHEN exp = 1 THEN amount ELSE 0 END) AS exp_per_day, SUM(CASE WHEN exp = 0 THEN amount ELSE 0 END) AS inc_per_day, SUM(amount) AS saldo,  strftime('%Y', timestamp) AS year, strftime('%m', timestamp) AS month, STRFTIME('%d', timestamp) AS day
         FROM transactions
-        WHERE exp = 1 AND user_id = :user_id AND year = strftime('%Y', 'now') AND month = strftime('%m', 'now')
+        WHERE user_id = :user_id AND year = strftime('%Y', 'now') AND month = strftime('%m', 'now')
         GROUP BY year, month, day
-        ORDER by timestamp DESC
-        """,
+        ORDER by timestamp DESC""",
         user_id=session['user_id'])
+
 
 def getTransactionsCurrentMonth():
     return db.execute("""
-        SELECT transactions.id, transactions.notes, transactions.amount, transactions.exp, transactions.timestamp, expCategories.label AS category, strftime('%Y', transactions.timestamp) AS year, strftime('%m', transactions.timestamp) AS month, strftime('%d', transactions.timestamp) AS day
-        FROM transactions LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
-        WHERE user_id = :user_id AND year = strftime('%Y', 'now') AND month = strftime('%m', 'now')
-        ORDER BY transactions.timestamp DESC
-        """,
+        SELECT transactions.id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
+        FROM transactions
+        LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
+        WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', 'now') AND strftime('%m', transactions.timestamp) = strftime('%m', 'now')
+        ORDER BY transactions.timestamp DESC""",
         user_id=session['user_id'])
+
 
 
 def returnToStart():
