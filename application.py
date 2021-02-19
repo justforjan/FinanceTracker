@@ -54,17 +54,17 @@ def index():
         transactions = getTransactionsCurrentMonth()
         days = getTransactionsCurrentMonthGroupedByDay()
 
-        for day in days:
-            day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
+        # for day in days:
+        #     day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
 
-        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), days=days)
+        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), days=days, transactions=transactions)
 
 
 @app.route("/changeToPrevMonth", methods=["POST"])
 def changeToPrevMonth():
 
     transactions = db.execute("""
-        SELECT transactions.id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
+        SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
         FROM transactions
         LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
         WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', 'now') AND strftime('%m', transactions.timestamp) = '01'
@@ -80,11 +80,11 @@ def changeToPrevMonth():
         ORDER by timestamp DESC""",
         user_id=session['user_id'])
 
-    for day in days:
-        day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
+    # for day in days:
+    #     day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
 
 
-    return jsonify('', render_template('temp.html', days=days))
+    return jsonify('', render_template('temp.html', days=days, transactions=transactions))
 
 
 
@@ -126,6 +126,99 @@ def addExpenseIncomeTrip():
         return addTrip()
 
 
+@app.route("/editExpenses", methods=["POST"])
+@login_required
+def editExpenses():
+    """Edit Expense"""
+
+    # Check, if every necessary info was given
+
+    if not request.form.get("editExpDate"):
+        flash("You did not complete the form")
+        return returnToStart()
+
+    if not request.form.get("editExpCategory"):
+        flash("You did not complete the form")
+        return returnToStart()
+
+    if not request.form.get("editExpTrip"):
+        flash("You did not complete the form")
+        return returnToStart()
+
+    if not request.form.get("editExpAmount"):
+        flash("You did not complete the form")
+        return returnToStart()
+
+    # Assign Values
+    timestamp = request.form.get("editExpDate")
+    category = int(request.form.get("editExpCategory"))
+    trip = int(request.form.get("editExpTrip"))
+    amount = float(request.form.get("editExpAmount"))
+    amount = float(f"{amount:,.2f}") * (-1)
+    notes = request.form.get("editExpNotes")
+    # exp = True
+
+    transaction_id = request.form.get("editExpId")
+
+    db.execute("""
+    UPDATE transactions
+    SET timestamp = :timestamp, expCategory_id = :category, trip_id = :trip, amount = :amount, notes = :notes
+    WHERE id = :transaction_id
+    """,
+    timestamp=timestamp, category=category, trip=trip, amount=amount, notes=notes,transaction_id=transaction_id)
+
+    return redirect("/")
+
+
+@app.route("/editIncome", methods=["POST"])
+@login_required
+def editIncome():
+    """Edit Income"""
+
+    # Check, if every necessary info was given
+
+    if not request.form.get("editIncDate"):
+        flash("You did not complete the form")
+        return returnToStart()
+
+    if not request.form.get("editIncAmount"):
+        flash("You did not complete the form")
+        return returnToStart()
+
+    # Assign Values
+    timestamp = request.form.get("editIncDate")
+    amount = float(request.form.get("editIncAmount"))
+    amount = float(f"{amount:,.2f}")
+    notes = request.form.get("editIncNotes")
+    # exp = False
+
+    transaction_id = request.form.get("editIncId")
+
+    db.execute("""
+    UPDATE transactions
+    SET timestamp = :timestamp, amount = :amount, notes = :notes
+    WHERE id = :transaction_id
+    """,
+    timestamp=timestamp, amount=amount, notes=notes, transaction_id=transaction_id)
+
+    return redirect("/")
+
+
+@app.route("/deleteTransaction", methods=["POST"])
+@login_required
+def deleteTransaction():
+    """Delete Transaction"""
+
+
+    transaction_id = request.form.get("deleteId")
+
+    db.execute("""
+    DELETE FROM transactions
+    WHERE id = :transaction_id
+    """,
+    transaction_id=transaction_id)
+
+    return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -159,7 +252,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
-        session["current_month"] = "" #TODO
+        session["current_month"] = ""           #TODO
 
         # Redirect user to home page
         return redirect("/")
@@ -280,7 +373,7 @@ def getTransactionsCurrentMonthGroupedByDay():
 
 def getTransactionsCurrentMonth():
     return db.execute("""
-        SELECT transactions.id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
+        SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
         FROM transactions
         LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
         WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', 'now') AND strftime('%m', transactions.timestamp) = strftime('%m', 'now')

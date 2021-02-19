@@ -14,7 +14,9 @@
         </tr>
       </thead>
 
-      {% for transaction in day['transactions'] %}
+      {% for transaction in transactions %}
+
+      {% if transaction['DAY'] == day['DAY'] %}
 
       <tbody>
         <tr class="text-left d-flex">
@@ -41,11 +43,13 @@
             {% endif %}
           </td>
           <td class="col-2">
-            <button type="button" class="btn btn-outline-primary" href="">Edit</button>
-            <button type="button" class="btn btn-outline-primary" href="">Delete</button>
+            <button id="editTransaction_{{ transaction['id'] }}" type="button" class="btn btn-outline-primary" href="" onClick="safeTransactionID(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1 %} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
+            <button id="" type="button" class="btn btn-outline-primary" href="" value="{{ transaction['id'] }}">Delete</button>
           </td>
         </tr>
       </tbody>
+
+      {% endif %}
 
       {% endfor %}
 

@@ -49,7 +49,7 @@ function changeToPrevMonth() {
         type: "POST",
         dataType: "json",
         success: function(data){
-            $(monthly_expenses).replace(data)
-        };
+            $('monthly_expenses').replace(data)
+        }
     });
 }

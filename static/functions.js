@@ -35,5 +35,3 @@ $(document).ready( function() {
     $('#expDate').val(new Date().toDateInputValue());
     $('#incDate').val(new Date().toDateInputValue());
 });
-
-

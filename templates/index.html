@@ -53,8 +53,9 @@
 
 {% block main %}
 <div>
-  <p>January 2021</p>
+  <p>February 2021</p>
 </div>
+<p id="test"></p>
 <div class="btn-group mb-5" role="group" aria-label="Basic example">
   <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeToPrevMonth()">keyboard_arrow_left</button>
   <button type="button" class="btn btn-primary material-icons" id="next_month" >keyboard_arrow_right</button>
@@ -77,7 +78,9 @@
         </tr>
       </thead>
 
-      {% for transaction in day['transactions'] %}
+      {% for transaction in transactions %}
+
+      {% if transaction['DAY'] == day['DAY'] %}
 
       <tbody>
         <tr class="text-left d-flex">
@@ -104,11 +107,13 @@
             {% endif %}
           </td>
           <td class="col-2">
-            <button type="button" class="btn btn-outline-primary" href="" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1%} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
-            <button type="button" class="btn btn-outline-primary" href="" value="{{ transaction['id'] }}">Delete</button>
+            <button type="button" class="btn btn-outline-primary" href="" onclick="lookup(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1 %} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
+            <button type="button" class="btn btn-outline-danger" href="" onclick="deleteTransaction(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
           </td>
         </tr>
       </tbody>
+
+      {% endif %}
 
       {% endfor %}
 
@@ -120,6 +125,40 @@
 </div>
 
 
+<script>
+  var transactions = JSON.parse('{{ transactions | tojson | safe }}');
+  var length = transactions.length
+
+  function lookup(id) {
+    console.log(id);
+    //console.log(transactions);
+    for (var i = 0; i < length; i++ ) {
+      if (transactions[i].id == id) {
+        if (transactions[i].exp == 1){
+          document.getElementById('editExpAmount').value = transactions[i].amount * (-1);
+          document.getElementById('editExpNotes').value = transactions[i].notes;
+          document.getElementById('editExpDate').value = transactions[i].timestamp;
+          document.getElementById('editExpTrip').value = transactions[i].trip_id;
+          document.getElementById('editExpCategory').value = transactions[i].expCategory_id;
+          document.getElementById('editExpId').value = transactions[i].id;
+        } else {
+          document.getElementById('editIncAmount').value = transactions[i].amount;
+          document.getElementById('editIncNotes').value = transactions[i].notes;
+          document.getElementById('editIncDate').value = transactions[i].timestamp;
+          document.getElementById('editIncId').value = transactions[i].id;
+        }
+      };
+    };
+  };
+
+  function deleteTransaction(id) {
+    document.getElementById("deleteId").value = id
+  }
+
+
+</script>
+
+
 <!-- Edit Expense Modal-->
 <div class="modal fade" id="editExpModal">
   <div class="modal-dialog modal-dialog-centered modal-md">
@@ -128,14 +167,14 @@
         <h1>Edit Expense</h1>
       </div>
       <div class="modal-body">
-          <form id="expForm" method="post" action="/addExpenseIncomeTrip">
+          <form id="editExpForm" method="post" action="/editExpenses">
               <div class="form-group">
                 <label for="editExpDate" class="font-weight-bold">Date:</label> <br>
                 <input autofocus class="form-control w-100" name="editExpDate" placeholder="Enter Date" id="editExpDate" type="date" required>
               </div>
               <div class="form-group">
                 <label for="editExpAccount" class="font-weight-bold" disabled>Account:</label> <br>
-                <select disabled class="form-control w-100" name="account" placeholder="Enter Account" id="editExpAccount" type="text">
+                <select disabled class="form-control w-100" name="editExpAccount" placeholder="Enter Account" id="editExpAccount" type="text">
                     <option selected>Account</option>
                 </select>
               </div>
@@ -159,11 +198,14 @@
               </div>
               <div class="form-group">
                 <label for="editExpAmount" class="font-weight-bold">Amount:</label> <br>
-                <input class="form-control w-100" name="editExpAmount" lang="en_EN" placeholder="Enter Amount" id="editExpAmount" min="0" step="0.01" type="number" value="{{ days[0]['transactions'][0]['amount'] * (-1)}}" required>
+                <input class="form-control w-100" name="editExpAmount" lang="en_EN" placeholder="Enter Amount" id="editExpAmount" min="0" step="0.01" type="number" value="" required>
               </div>
               <div class="form-group">
                 <label for="editExpNotes" class="font-weight-bold">Notes:</label> <br>
                 <input class="form-control w-100" name="editExpNotes" placeholder="Enter Notes" id="editExpNotes" type="text">
+              </div>
+              <div class="form-group">
+                <input class="form-control w-100" name="editExpId" id="editExpId" type="hidden">
               </div>
           </form>
       </div>
@@ -171,7 +213,7 @@
           <div class="container">
               <div class="row">
                 <div class="col">
-                    <input type="submit" class="btn btn-primary btn-block" value="Save" form="expForm">
+                    <input type="submit" class="btn btn-primary btn-block" id="editExpSave" value="Save" form="editExpForm">
                     <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
                 </div>
               </div>
@@ -190,24 +232,27 @@
         <h1>Edit Income</h1>
       </div>
       <div class="modal-body">
-          <form id="incForm" style="text-align: left;" method="post" action="/addExpenseIncomeTrip">
+          <form id="editIncForm" style="text-align: left;" method="post" action="/editIncome">
               <div class="form-group">
-                <label for="incDate" class="font-weight-bold">Date:</label> <br>
-                <input autofocus class="form-control w-100" name="incDate" placeholder="Enter Date" id="incDate" type="date">
+                <label for="editIncDate" class="font-weight-bold">Date:</label> <br>
+                <input autofocus class="form-control w-100" name="editIncDate" placeholder="Enter Date" id="editIncDate" type="date">
               </div>
               <div class="form-group">
-                <label for="incAccount" class="font-weight-bold" disabled>Account:</label> <br>
-                <select disabled class="form-control w-100" name="account" placeholder="Enter Account" id="incAccount" type="text">
+                <label for="editIncAccount" class="font-weight-bold" disabled>Account:</label> <br>
+                <select disabled class="form-control w-100" name="editIncAccount" placeholder="Enter Account" id="editIncAccount" type="text">
                     <option selected>Account</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="incAmount" class="font-weight-bold">Amount:</label> <br>
-                <input class="form-control w-100" name="incAmount" lang="en_EN" placeholder="Enter Amount" id="incAmount" min="0" step="0.01" type="number">
+                <label for="editIncAmount" class="font-weight-bold">Amount:</label> <br>
+                <input class="form-control w-100" name="editIncAmount" lang="en_EN" placeholder="Enter Amount" id="editIncAmount" min="0" step="0.01" type="number">
               </div>
               <div class="form-group">
-                <label for="incNotes" class="font-weight-bold">Notes:</label> <br>
-                <input class="form-control w-100" name="incNotes" placeholder="Enter Notes" id="incNotes" type="text">
+                <label for="editIncNotes" class="font-weight-bold">Notes:</label> <br>
+                <input class="form-control w-100" name="editIncNotes" placeholder="Enter Notes" id="editIncNotes" type="text">
+              </div>
+              <div class="form-group">
+                <input class="form-control w-100" name="editIncId" id="editIncId" type="hidden">
               </div>
           </form>
       </div>
@@ -215,7 +260,7 @@
           <div class="container">
               <div class="row">
                   <div class="col">
-                      <input type="submit" class="btn btn-primary btn-block" value="Save" form="incForm">
+                      <input type="submit" class="btn btn-primary btn-block" value="Save" form="editIncForm">
                       <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
                   </div>
               </div>
@@ -224,5 +269,35 @@
     </div>
   </div>
 </div>
+
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this transaction?</p>
+          <form id="deleteForm" style="text-align: left;" method="post" action="/deleteTransaction">
+            <div class="form-group">
+              <input class="form-control w-100" name="deleteId" id="deleteId" type="hidden">
+            </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                  <div class="col">
+                      <input type="submit" class="btn btn-primary btn-block" value="Yes" form="deleteForm">
+                      <input type="button" class="btn btn-default border-primary btn-block" value="No" data-dismiss="modal">
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 {% endblock %}
