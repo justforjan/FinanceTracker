@@ -1,6 +1,7 @@
 import os
 import time
 import datetime
+import calendar
 
 from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
@@ -44,6 +45,7 @@ db = SQL("sqlite:///financetracker.db")
 
 
 
+
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
@@ -51,40 +53,50 @@ def index():
 
     if request.method == "GET":
 
-        transactions = getTransactionsCurrentMonth()
-        days = getTransactionsCurrentMonthGroupedByDay()
+        selectedDate = datetime.date.today()
+        # print(selectedDate)
+        # print(type(selectedDate))
+
+        session["selected_date"] = selectedDate.isoformat()
+
+        return toIndexWithoutRefresh()
 
         # for day in days:
         #     day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
 
-        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), days=days, transactions=transactions)
 
-
-@app.route("/changeToPrevMonth", methods=["POST"])
+@app.route("/changeToPrevMonth", methods=["GET"])
 def changeToPrevMonth():
 
-    transactions = db.execute("""
-        SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
-        FROM transactions
-        LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
-        WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', 'now') AND strftime('%m', transactions.timestamp) = '01'
-        ORDER BY transactions.timestamp DESC""",
-        user_id=session['user_id'])
+    changeMonth("prev")
+
+    transactions = getTransactionsCurrentMonth()
+    days = getTransactionsCurrentMonthGroupedByDay()
+
+    return render_template('temp.html', days=days, month=getSumPerMonth(), transactions=transactions)
 
 
-    days = db.execute("""
-        SELECT SUM(CASE WHEN exp = 1 THEN amount ELSE 0 END) AS exp_per_day, SUM(CASE WHEN exp = 0 THEN amount ELSE 0 END) AS inc_per_day, SUM(amount) AS saldo,  strftime('%Y', timestamp) AS year, strftime('%m', timestamp) AS month, STRFTIME('%d', timestamp) AS day
-        FROM transactions
-        WHERE user_id = :user_id AND year = strftime('%Y', 'now') AND month = '01'
-        GROUP BY year, month, day
-        ORDER by timestamp DESC""",
-        user_id=session['user_id'])
+@app.route("/changeToNextMonth", methods=["GET"])
+def changeToNextMonth():
 
-    # for day in days:
-    #     day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
+    changeMonth("next")
+
+    transactions = getTransactionsCurrentMonth()
+    days = getTransactionsCurrentMonthGroupedByDay()
+
+    return render_template('temp.html', days=days, month=getSumPerMonth(), transactions=transactions)
 
 
-    return jsonify('', render_template('temp.html', days=days, transactions=transactions))
+def changeMonth(m):
+
+    selectedDate = datetime.date.fromisoformat(session["selected_date"])
+
+    day = 1 if m == "prev" else calendar.monthrange(selectedDate.year, selectedDate.month)[1]
+    selectedDate = selectedDate.replace(day=day)
+
+    selectedMonth = selectedDate + datetime.timedelta(days=1 if m == "next" else -1)
+
+    session['selected_date'] = selectedMonth.isoformat()
 
 
 
@@ -102,8 +114,6 @@ def statistics():
 @login_required
 def trips():
     """Show trips"""
-
-
 
     return render_template("trips.html", expCategories=getExpCategories(), trips=getTrips())
 
@@ -132,7 +142,6 @@ def editExpenses():
     """Edit Expense"""
 
     # Check, if every necessary info was given
-
     if not request.form.get("editExpDate"):
         flash("You did not complete the form")
         return returnToStart()
@@ -167,7 +176,7 @@ def editExpenses():
     """,
     timestamp=timestamp, category=category, trip=trip, amount=amount, notes=notes,transaction_id=transaction_id)
 
-    return redirect("/")
+    return toIndexWithoutRefresh()
 
 
 @app.route("/editIncome", methods=["POST"])
@@ -201,7 +210,7 @@ def editIncome():
     """,
     timestamp=timestamp, amount=amount, notes=notes, transaction_id=transaction_id)
 
-    return redirect("/")
+    return toIndexWithoutRefresh()
 
 
 @app.route("/deleteTransaction", methods=["POST"])
@@ -218,7 +227,9 @@ def deleteTransaction():
     """,
     transaction_id=transaction_id)
 
-    return redirect("/")
+    return toIndexWithoutRefresh()
+
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -252,7 +263,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
-        session["current_month"] = ""           #TODO
+
 
         # Redirect user to home page
         return redirect("/")
@@ -361,29 +372,61 @@ def getTransactions():
     return db.execute("SELECT * FROM transactions LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id WHERE user_id = :user_id ORDER BY transactions.timestamp DESC", user_id=session['user_id'])
 
 
+
+#month
+def getSumPerMonth():
+    month = db.execute("""
+        SELECT SUM(CASE WHEN exp = 1 THEN amount ELSE 0 END) AS exp_per_month, SUM(CASE WHEN exp = 0 THEN amount ELSE 0 END) AS inc_per_month, SUM(amount) AS saldo,  strftime('%Y', timestamp) AS year, strftime('%m', timestamp) AS month
+        FROM transactions
+        WHERE user_id = :user_id AND strftime('%Y-%m', timestamp) = strftime('%Y-%m', :selectedDate)
+        """,
+        user_id=session['user_id'], selectedDate=session['selected_date'])[0]
+
+    if month is None or "" or {} or 'NoneType':
+        month = {
+            'month_name' : calendar.month_name[int(datetime.date.fromisoformat(session['selected_date']).month)],
+            'YEAR' : datetime.date.fromisoformat(session['selected_date']).year,
+            'exp_per_month' : 0,
+            'inc_per_month' : 0,
+            'saldo' : 0
+            }
+    else:
+        month['month_name'] = calendar.month_name[int(month['MONTH'])]
+
+    return month
+
+# days
 def getTransactionsCurrentMonthGroupedByDay():
     return db.execute("""
         SELECT SUM(CASE WHEN exp = 1 THEN amount ELSE 0 END) AS exp_per_day, SUM(CASE WHEN exp = 0 THEN amount ELSE 0 END) AS inc_per_day, SUM(amount) AS saldo,  strftime('%Y', timestamp) AS year, strftime('%m', timestamp) AS month, STRFTIME('%d', timestamp) AS day
         FROM transactions
-        WHERE user_id = :user_id AND year = strftime('%Y', 'now') AND month = strftime('%m', 'now')
+        WHERE user_id = :user_id AND year = strftime('%Y', :selectedDate) AND month = strftime('%m', :selectedDate)
         GROUP BY year, month, day
         ORDER by timestamp DESC""",
-        user_id=session['user_id'])
+        user_id=session['user_id'], selectedDate=session['selected_date'])
 
-
+# Transactions
 def getTransactionsCurrentMonth():
     return db.execute("""
         SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
         FROM transactions
         LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
-        WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', 'now') AND strftime('%m', transactions.timestamp) = strftime('%m', 'now')
+        WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', :selectedDate) AND strftime('%m', transactions.timestamp) = strftime('%m', :selectedDate)
         ORDER BY transactions.timestamp DESC""",
+        user_id=session['user_id'], selectedDate=session['selected_date'])
+
+# allTransactions
+def getAllTransactions():
+    return db.execute("""
+        SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp
+        FROM transactions
+        WHERE user_id = :user_id
+        """,
         user_id=session['user_id'])
 
 
-
 def returnToStart():
-    return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), transactions=getTransactions())
+    return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), transactions=getTransactions(), allTransactions=getAllTransactions())
 
 def returnToStatisitcs():
     return render_template("statistics.html", expCategories=getExpCategories(), trips=getTrips())
@@ -397,15 +440,15 @@ def addExpense():
     # Check, if every necessary info was given
     if not request.form.get("category"):
         flash("You did not complete the form")
-        return returnToStart()
+        return toIndexWithoutRefresh()
 
     if not request.form.get("trip"):
         flash("You did not complete the form")
-        return returnToStart()
+        return toIndexWithoutRefresh()
 
     if not request.form.get("expAmount"):
         flash("You did not complete the form")
-        return returnToStart()
+        return toIndexWithoutRefresh()
 
     # Assign Values
     timestamp = request.form.get("expDate")
@@ -420,7 +463,7 @@ def addExpense():
     db.execute("INSERT INTO transactions (user_id, expCategory_id, trip_id, timestamp, notes, amount, exp) VALUES (:user_id, :expCategory_id, :trip_id, :timestamp, :notes, :amount, :exp)",
     user_id=session["user_id"], expCategory_id=category, trip_id=trip, timestamp=timestamp, notes=notes, amount=amount, exp=exp)
 
-    return redirect("/")
+    return toIndexWithoutRefresh()
 
 
 def addIncome():
@@ -437,7 +480,7 @@ def addIncome():
     db.execute("INSERT INTO transactions (user_id, timestamp, notes, amount, exp) VALUES (:user_id, :timestamp, :notes, :amount, :exp)",
     user_id=session["user_id"], timestamp=timestamp, notes=notes, amount=amount, exp=exp)
 
-    return redirect("/")
+    return toIndexWithoutRefresh()
 
 
 
@@ -445,11 +488,11 @@ def addTrip():
     # Check, if every necessary info was given
     if not request.form.get("startDate"):
         flash("You need to choose a start date")
-        return redirect("/")
+        return toIndexWithoutRefresh()
 
     if not request.form.get("endDate"):
         flash("You need to choose an end date")
-        return redirect("/")
+        return toIndexWithoutRefresh()
 
     title = request.form.get("tripTitle")
     startDate = request.form.get("startDate")
@@ -458,6 +501,12 @@ def addTrip():
     db.execute("INSERT INTO trips (user_id, title, startDate, endDate) VALUES (:user_id, :title, :startDate, :endDate)",
                                         user_id=session['user_id'], title=title, startDate=startDate, endDate=endDate)
 
-    return redirect("/")
+    return toIndexWithoutRefresh()
 
 
+def toIndexWithoutRefresh():
+
+    transactions = getTransactionsCurrentMonth()
+    days = getTransactionsCurrentMonthGroupedByDay()
+
+    return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), days=days, month=getSumPerMonth(), transactions=transactions, allTransactions=getAllTransactions())

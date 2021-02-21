@@ -52,17 +52,34 @@
 
 
 {% block main %}
-<div>
-  <p>February 2021</p>
-</div>
+
 <p id="test"></p>
-<div class="btn-group mb-5" role="group" aria-label="Basic example">
+<div class="btn-group mb-4" role="group" aria-label="Basic example">
   <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeToPrevMonth()">keyboard_arrow_left</button>
-  <button type="button" class="btn btn-primary material-icons" id="next_month" >keyboard_arrow_right</button>
+  <button type="button" class="btn btn-primary material-icons" id="next_month" onclick="changeToNextMonth()">keyboard_arrow_right</button>
 </div>
 
 
 <div id="monthly_expenses">
+
+<div class="mb-2">
+  <p>{{ month['month_name'] }} {{ month['YEAR'] }}</p>
+</div>
+
+<div class="mb-4 bg-light p-2 rounded">
+  <div class="row">
+    <div class="col-4">
+      {{ month['inc_per_month'] }}
+    </div>
+    <div class="col-4">
+      {{ month['exp_per_month'] }}
+    </div>
+    <div class="col-4">
+      {{ month['saldo'] }}
+    </div>
+  </div>
+</div>
+
 {% for day in days %}
 
   <div class="table-responsive pb-5 rounded">
@@ -126,37 +143,38 @@
 
 
 <script>
-  var transactions = JSON.parse('{{ transactions | tojson | safe }}');
-  var length = transactions.length
+var allTransactions = JSON.parse('{{ allTransactions | tojson | safe }}');
+var length = allTransactions.length
 
-  function lookup(id) {
-    console.log(id);
-    //console.log(transactions);
-    for (var i = 0; i < length; i++ ) {
-      if (transactions[i].id == id) {
-        if (transactions[i].exp == 1){
-          document.getElementById('editExpAmount').value = transactions[i].amount * (-1);
-          document.getElementById('editExpNotes').value = transactions[i].notes;
-          document.getElementById('editExpDate').value = transactions[i].timestamp;
-          document.getElementById('editExpTrip').value = transactions[i].trip_id;
-          document.getElementById('editExpCategory').value = transactions[i].expCategory_id;
-          document.getElementById('editExpId').value = transactions[i].id;
-        } else {
-          document.getElementById('editIncAmount').value = transactions[i].amount;
-          document.getElementById('editIncNotes').value = transactions[i].notes;
-          document.getElementById('editIncDate').value = transactions[i].timestamp;
-          document.getElementById('editIncId').value = transactions[i].id;
-        }
-      };
-    };
-  };
+console.log(allTransactions)
 
-  function deleteTransaction(id) {
-    document.getElementById("deleteId").value = id
-  }
+function lookup(id) {
+ console.log(id);
+ //console.log(transactions);
+ for (var i = 0; i < length; i++ ) {
+   if (allTransactions[i].id == id) {
+     if (allTransactions[i].exp == 1){
+       document.getElementById('editExpAmount').value = allTransactions[i].amount * (-1);
+       document.getElementById('editExpNotes').value = allTransactions[i].notes;
+       document.getElementById('editExpDate').value = allTransactions[i].timestamp;
+       document.getElementById('editExpTrip').value = allTransactions[i].trip_id;
+       document.getElementById('editExpCategory').value = allTransactions[i].expCategory_id;
+       document.getElementById('editExpId').value = allTransactions[i].id;
+     } else {
+       document.getElementById('editIncAmount').value = allTransactions[i].amount;
+       document.getElementById('editIncNotes').value = allTransactions[i].notes;
+       document.getElementById('editIncDate').value = allTransactions[i].timestamp;
+       document.getElementById('editIncId').value = allTransactions[i].id;
+     }
+   };
+ };
+};
 
-
+function deleteTransaction(id) {
+ document.getElementById("deleteId").value = id
+}
 </script>
+
 
 
 <!-- Edit Expense Modal-->

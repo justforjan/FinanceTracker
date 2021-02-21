@@ -42,14 +42,37 @@ function update_monthly_expenses()
 */
 
 
-
+/*
 function changeToPrevMonth() {
     $.ajax({
         url: "/changeToPrevMonth",
         type: "POST",
         dataType: "json",
         success: function(data){
-            $('monthly_expenses').replace(data)
+            document.getElementById('monthly_expenses').replace(data)
         }
     });
+}
+*/
+
+function changeToPrevMonth() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById('monthly_expenses').innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/changeToPrevMonth" , true);
+  xhttp.send();
+}
+
+function changeToNextMonth() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById('monthly_expenses').innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/changeToNextMonth" , true);
+  xhttp.send();
 }

@@ -1,4 +1,7 @@
-<div id="monthly_expenses">
+<div class="mb-2">
+  <p>{{ month['month_name'] }} {{ month['YEAR'] }}</p>
+</div>
+
 {% for day in days %}
 
   <div class="table-responsive pb-5 rounded">
@@ -43,8 +46,8 @@
             {% endif %}
           </td>
           <td class="col-2">
-            <button id="editTransaction_{{ transaction['id'] }}" type="button" class="btn btn-outline-primary" href="" onClick="safeTransactionID(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1 %} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
-            <button id="" type="button" class="btn btn-outline-primary" href="" value="{{ transaction['id'] }}">Delete</button>
+            <button type="button" class="btn btn-outline-primary" href="" onclick="lookup(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1 %} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
+            <button type="button" class="btn btn-outline-danger" href="" onclick="deleteTransaction(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -58,4 +61,5 @@
   </div>
 
 {% endfor %}
-</div>
+
+
