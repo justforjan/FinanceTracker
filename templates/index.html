@@ -4,7 +4,7 @@
     Index
 {% endblock %}
 
-
+<!--
 {% block searchBar %}
 
   <form>
@@ -47,13 +47,17 @@
   <hr>
 
 {% endblock %}
-
+-->
 
 
 
 {% block main %}
 
-<p id="test"></p>
+<div class="mb-5">
+  <h1>Transactions</h1>
+  <hr>
+</div>
+
 <div class="btn-group mb-4" role="group" aria-label="Basic example">
   <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeToPrevMonth()">keyboard_arrow_left</button>
   <button type="button" class="btn btn-primary material-icons" id="next_month" onclick="changeToNextMonth()">keyboard_arrow_right</button>
@@ -68,14 +72,14 @@
 
 <div class="mb-4 bg-light p-2 rounded">
   <div class="row">
-    <div class="col-4">
-      {{ month['inc_per_month'] }}
+    <div class="col-4 text-success">
+      <b>€ {{ month['inc_per_month'] }}</b>
+    </div>
+    <div class="col-4 text-danger">
+      <b>€ {{ month['exp_per_month'] }}</b>
     </div>
     <div class="col-4">
-      {{ month['exp_per_month'] }}
-    </div>
-    <div class="col-4">
-      {{ month['saldo'] }}
+      <b>€ {{ month['saldo'] }}</b>
     </div>
   </div>
 </div>
@@ -90,7 +94,7 @@
           <th scope="col" class="col-2 bg-primary text-center text-white">{{ day['DAY'] }}.{{ day['MONTH'] }}</th>
           <th scope="col" class="col-4"></th>
           <th scope="col" class="text-success col">€ {{ day['inc_per_day'] }}</th>
-          <th scope="col" class="text-danger col">€ {{ day['exp_per_day'] * (-1) }}</th>
+          <th scope="col" class="text-danger col">€ {{ day['exp_per_day'] }}</th>
           <th scope="col" class="col-2">€ {{ day['saldo'] }}</th>
         </tr>
       </thead>
@@ -120,7 +124,7 @@
           <!-- Expense -->
           <td class="col text-danger">
             {% if transaction['exp'] == 1 %}
-              € {{ transaction['amount']  * (-1) }}
+              € {{ transaction['amount'] }}
             {% endif %}
           </td>
           <td class="col-2">
@@ -154,7 +158,7 @@ function lookup(id) {
  for (var i = 0; i < length; i++ ) {
    if (allTransactions[i].id == id) {
      if (allTransactions[i].exp == 1){
-       document.getElementById('editExpAmount').value = allTransactions[i].amount * (-1);
+       document.getElementById('editExpAmount').value = allTransactions[i].amount;
        document.getElementById('editExpNotes').value = allTransactions[i].notes;
        document.getElementById('editExpDate').value = allTransactions[i].timestamp;
        document.getElementById('editExpTrip').value = allTransactions[i].trip_id;

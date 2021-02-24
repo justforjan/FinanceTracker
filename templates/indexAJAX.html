@@ -2,6 +2,20 @@
   <p>{{ month['month_name'] }} {{ month['YEAR'] }}</p>
 </div>
 
+<div class="mb-4 bg-light p-2 rounded">
+  <div class="row">
+    <div class="col-4 text-success">
+      <b>€ {{ month['inc_per_month'] }}</b>
+    </div>
+    <div class="col-4 text-danger">
+      <b>€ {{ month['exp_per_month'] }}</b>
+    </div>
+    <div class="col-4">
+      <b>€ {{ month['saldo'] }}</b>
+    </div>
+  </div>
+</div>
+
 {% for day in days %}
 
   <div class="table-responsive pb-5 rounded">
@@ -12,7 +26,7 @@
           <th scope="col" class="col-2 bg-primary text-center text-white">{{ day['DAY'] }}.{{ day['MONTH'] }}</th>
           <th scope="col" class="col-4"></th>
           <th scope="col" class="text-success col">€ {{ day['inc_per_day'] }}</th>
-          <th scope="col" class="text-danger col">€ {{ day['exp_per_day'] * (-1) }}</th>
+          <th scope="col" class="text-danger col">€ {{ day['exp_per_day']}}</th>
           <th scope="col" class="col-2">€ {{ day['saldo'] }}</th>
         </tr>
       </thead>
@@ -42,7 +56,7 @@
           <!-- Expense -->
           <td class="col text-danger">
             {% if transaction['exp'] == 1 %}
-              € {{ transaction['amount']  * (-1) }}
+              € {{ transaction['amount']  }}
             {% endif %}
           </td>
           <td class="col-2">
