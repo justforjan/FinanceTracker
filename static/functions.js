@@ -39,7 +39,7 @@ $(document).ready( function() {
 function lookup(id) {
  console.log(id);
  //console.log(transactions);
- for (var i = 0; i < length; i++ ) {
+ for (var i = 0; i < numberOfAllTransactions; i++ ) {
    if (allTransactions[i].id == id) {
      if (allTransactions[i].exp == 1){
        document.getElementById('editExpAmount').value = allTransactions[i].amount;

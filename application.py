@@ -143,13 +143,13 @@ def getMonthData(monthTotal):
 
     return month
 
-def getMonthTotal():
-    return db.execute("""
-        SELECT SUM(CASE WHEN transactions.exp = 1 THEN transactions.amount ELSE 0 END) * (-1) AS t
-        FROM transactions
-        WHERE strftime('%Y-%m', transactions.timestamp) = strftime('%Y-%m', :selectedDate) AND transactions.user_id = :user_id
-        """,
-        user_id=session['user_id'], selectedDate=session['selected_date'])[0]['t']
+# def getMonthTotal():
+#     return db.execute("""
+#         SELECT SUM(CASE WHEN transactions.exp = 1 THEN transactions.amount ELSE 0 END) * (-1) AS t
+#         FROM transactions
+#         WHERE strftime('%Y-%m', transactions.timestamp) = strftime('%Y-%m', :selectedDate) AND transactions.user_id = :user_id
+#         """,
+#         user_id=session['user_id'], selectedDate=session['selected_date'])[0]['t']
 
 
 
@@ -189,7 +189,7 @@ def changeToNextMonthCat():
     return render_template('indexAJAX.html', days=days, month=getSumPerMonth(), transactions=transactions, categoryLabel=session['selected_category'])
 
 
-# DAY
+# DAY with selected category
 def getTransactionsSortedByDayOfSelectedCategory(category):
     days = db.execute("""
         SELECT SUM(CASE WHEN exp = 1 THEN transactions.amount ELSE 0 END) AS exp_per_day, SUM(CASE WHEN exp = 0 THEN transactions.amount ELSE 0 END) AS inc_per_day, SUM(transactions.amount) AS saldo,  strftime('%Y', transactions.timestamp) AS year, strftime('%m', transactions.timestamp) AS month, STRFTIME('%d', transactions.timestamp) AS day
@@ -208,7 +208,7 @@ def getTransactionsSortedByDayOfSelectedCategory(category):
 
     return days
 
-# TRANSACTIONS
+# TRANSACTIONS with selected category
 def getTransactionsCurrentMonthOfSelectedCategory(category):
     transactions = db.execute("""
         SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
@@ -223,18 +223,18 @@ def getTransactionsCurrentMonthOfSelectedCategory(category):
 
     return transactions
 
-# ALL TRANSACTIONS
+# ALL TRANSACTIONS with selected category
 def getAllTransactionsOfSelectedCAtegory(category):
     transactions =  db.execute("""
         SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp
         FROM transactions
         JOIN expCategories ON expCategories.id = transactions.expCategory_id
-        WHERE user_id = :user_id AND expCategories.id = :category
+        WHERE user_id = :user_id AND expCategories.label = :category
         """,
     user_id=session['user_id'], category=category)
 
     for transaction in transactions:
-        transaction['amount'] = format(abs(transaction['amount']), ".2f")
+        transaction['amount'] = abs(transaction['amount'])
 
     return transactions
 

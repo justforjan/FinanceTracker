@@ -28,9 +28,9 @@
         <tr class="text-left d-flex">
           <th scope="col" class="col-2 bg-primary text-center text-white">{{ day['DAY'] }}.{{ day['MONTH'] }}</th>
           <th scope="col" class="col-4"></th>
-          <th scope="col" class="text-success col">€ {{ day['inc_per_day'] }}</th>
+          <th scope="col" class="text-success col">{% if not categoryLabel %}€ {{ day['inc_per_day'] }}{% endif %}</th>
           <th scope="col" class="text-danger col">€ {{ day['exp_per_day'] }}</th>
-          <th scope="col" class="col-2">€ {{ day['saldo'] }}</th>
+          <th scope="col" class="col-2">{% if not categoryLabel %}€ {{ day['saldo'] }}{% endif %}</th>
         </tr>
       </thead>
 
@@ -52,7 +52,7 @@
           </td>
           <!-- Income -->
           <td class="col text-success">
-            {% if transaction['exp'] == 0  %}
+            {% if transaction['exp'] == 0 %}
               € {{ transaction['amount'] }}
             {% endif %}
           </td>
@@ -63,8 +63,8 @@
             {% endif %}
           </td>
           <td class="col-2">
-            <button type="button" class="btn btn-outline-primary" href="" onclick="lookup(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1 %} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
-            <button type="button" class="btn btn-outline-danger" href="" onclick="deleteTransaction(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
+            <button type="button" class="btn btn-outline-primary" onclick="lookup(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target={% if transaction['exp'] == 1 %} "#editExpModal" {% else %} "#editIncModal" {% endif %}>Edit</button>
+            <button type="button" class="btn btn-outline-danger" onclick="deleteTransaction(this.value)" value="{{ transaction['id'] }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
           </td>
         </tr>
       </tbody>
