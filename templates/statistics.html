@@ -7,7 +7,7 @@
 
 {% block body %}
 
-onload="setCatBackground()"
+onload="setBackgroundColor()"
 
 {% endblock %}
 
@@ -62,12 +62,20 @@ onload="setCatBackground()"
 
 
 <div class="btn-group mb-4" role="group" aria-label="Basic example">
-  <button type="button" class="btn btn-primary material-icons" onclick="changeToPrevMonthStat()">keyboard_arrow_left</button>
-  <button type="button" class="btn btn-primary material-icons" onclick="changeToNextMonthStat()">keyboard_arrow_right</button>
+  <a type="button" class="btn btn-primary material-icons" href="/statistics/prevMonth" onclick="">keyboard_arrow_left</a>
+  <a type="button" class="btn btn-primary material-icons" href="/statistics/nextMonth" onclick="">keyboard_arrow_right</a>
 </div>
 
 
-<div class="wrapper">
+<div id="monthly_statistics">
+
+
+  <div class="mb-2">
+    <p>{{ monthSum['month_name'] }} {{ monthSum['YEAR'] }}</p>
+  </div>
+
+
+  <div class="wrapper">
     <div class="title text-center mb-5">
       <h1></h1>
     </div>
@@ -75,57 +83,62 @@ onload="setCatBackground()"
       <canvas id="myChart" aria-label="chart" role="img"></canvas>
     </div>
   </div>
-</div>
 
 
 
-<div class="container d-flex justify-content-center align-items-center">
-<table class="table">
-  <tbody>
+{% if monthSum['exp_per_month'] %}
+  <div class="container d-flex justify-content-center align-items-center">
+    <table class="table table-borderless">
+      <tbody>
 
+      {% for category in month %}
+
+        <tr id="cat_{{ loop.index0 }}" class="cat-background">
+          <td id="perc_{{ loop.index0 }}"scope="col" class="text-left">{{ category['percentage'] }}%</td>
+          <td id="label_{{ loop.index0 }}"scope="col" class=""><a href="/statistics/{{ category['label'] }}">{{ category['label'] }}</a></td>
+          <td id="amount_{{ loop.index0 }}"scope="col" class="text-right">€ {{ category['exp_per_category'] }}</td>
+        </tr>
+
+      {% endfor %}
+
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="text-right font-weight-bold">€ {{ monthSum['exp_per_month'] }}</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+{% else %}
+
+
+{% endif %}
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+  <script>
+  var ctx = document.getElementById('myChart').getContext('2d');
+
+  var labels = [];
+  var data = [];
   {% for category in month %}
-
-    <tr id="cat_{{ loop.index0 }}" class="cat-background">
-      <td id="perc_{{ loop.index0 }}"scope="col" class="text-left">{{ category['percentage'] }}%</td>
-      <td id="label_{{ loop.index0 }}"scope="col" class=""><a href="/statistics/{{ category['label'] }}">{{ category['label'] }}</a></td>
-      <td id="amount_{{ loop.index0 }}"scope="col" class="text-right">€ {{ category['exp_per_category'] }}</td>
-    </tr>
-
+    labels.push("{{ category['label'] }}");
+    data.push("{{ category['percentage'] }}");
   {% endfor %}
 
-    <tr>
-      <td></td>
-      <td></td>
-      <td class="text-right font-weight-bold">€ {{ monthTotal }}</td>
-    </tr>
+  numberOfCategories = labels.length;
 
-  </tbody>
-</table>
+  console.log(labels)
+
+
+  </script>
+
+  <script type="text/javascript" src="/static/myChart.js"></script>
 </div>
-
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-
-<script>
-var ctx = document.getElementById('myChart').getContext('2d');
-
-
-
-
-var labels = [];
-var data = [];
-{% for category in month %}
-  labels.push("{{ category['label'] }}");
-  data.push("{{ category['percentage'] }}");
-{% endfor %}
-
-numberOfCategories = labels.length;
-
-console.log(labels)
-</script>
-
-<script type="text/javascript" src="/static/myChart.js"></script>
 
 {% endblock %}

@@ -45,7 +45,7 @@ db = SQL("sqlite:///financetracker.db")
 
 
 
-
+### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ### INDEX ###
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
@@ -99,7 +99,7 @@ def changeMonth(m):
     session['selected_date'] = selectedMonth.isoformat()
 
 
-
+### STATISTICS ### STATISTICS ### STATISTICS ### STATISTICS ### STATISTICS ### STATISTICS ### STATISTICS ### STATISTICS ### STATISTICS ###
 @app.route("/statistics", methods=["GET", "POST"])
 @login_required
 def statistics():
@@ -107,49 +107,49 @@ def statistics():
 
     if request.method == "GET":
 
-        month = db.execute("""
-            SELECT SUM(CASE WHEN transactions.exp = 1 THEN transactions.amount ELSE 0 END) * (-1) AS exp_per_category, expCategories.label AS label, transactions.expCategory_id
-            FROM transactions
-            JOIN expCategories ON transactions.expCategory_id = expCategories.id
-            WHERE strftime('%Y-%m', transactions.timestamp) = strftime('%Y-%m', :selectedDate) AND transactions.user_id = :user_id
-            GROUP BY transactions.expCategory_id
-            ORDER BY exp_per_category DESC
-            """,
-            user_id=session['user_id'], selectedDate=session['selected_date'])
+        monthSum = getSumPerMonth()
+        month = getMonthData(float(monthSum['exp_per_month']))
 
-        monthTotal = db.execute("""
-            SELECT SUM(CASE WHEN transactions.exp = 1 THEN transactions.amount ELSE 0 END) * (-1) AS t
-            FROM transactions
-            WHERE strftime('%Y-%m', transactions.timestamp) = strftime('%Y-%m', :selectedDate) AND transactions.user_id = :user_id
-            """,
-            user_id=session['user_id'], selectedDate=session['selected_date'])[0]['t']
+        return render_template("statistics.html", expCategories=getExpCategories(), trips=getTrips(), month=month, monthSum=getSumPerMonth())
 
-        for category in month:
-            category['percentage'] = round(category['exp_per_category'] / monthTotal *100)
-            category['exp_per_category'] = format(round(abs(category['exp_per_category']), 2), ".2f")
-
-        return render_template("statistics.html", expCategories=getExpCategories(), trips=getTrips(), month=month, monthTotal=monthTotal)
-
-@app.route("/changeToPrevMonthStat", methods=["GET"])
+@app.route("/statistics/prevMonth", methods=["GET"])
 def changeToPrevMonthStat():
 
     changeMonth("prev")
 
-    transactions = getTransactionsCurrentMonth()
-    days = getTransactionsCurrentMonthGroupedByDay()
+    return statistics()
 
-    return render_template('statisticsAJAX.html', month=month, monthTotal=monthTotal)
-
-@app.route("/changeToNextMonthStat", methods=["GET"])
+@app.route("/statistics/nextMonth", methods=["GET"])
 def changeToNextMonthStat():
 
     changeMonth("next")
 
-    transactions = getTransactionsCurrentMonth()
-    days = getTransactionsCurrentMonthGroupedByDay()
+    return statistics()
 
-    return render_template('statisticsAJAX.html', month=month, monthTotal=monthTotal)
+def getMonthData(monthTotal):
+    month = db.execute("""
+        SELECT SUM(CASE WHEN transactions.exp = 1 THEN transactions.amount ELSE 0 END) * (-1) AS exp_per_category, expCategories.label AS label, transactions.expCategory_id
+        FROM transactions
+        JOIN expCategories ON transactions.expCategory_id = expCategories.id
+        WHERE strftime('%Y-%m', transactions.timestamp) = strftime('%Y-%m', :selectedDate) AND transactions.user_id = :user_id
+        GROUP BY transactions.expCategory_id
+        ORDER BY exp_per_category DESC
+        """,
+        user_id=session['user_id'], selectedDate=session['selected_date'])
 
+    for category in month:
+        category['percentage'] = round(category['exp_per_category'] / monthTotal *100)
+        category['exp_per_category'] = format(round(abs(category['exp_per_category']), 2), ".2f")
+
+    return month
+
+def getMonthTotal():
+    return db.execute("""
+        SELECT SUM(CASE WHEN transactions.exp = 1 THEN transactions.amount ELSE 0 END) * (-1) AS t
+        FROM transactions
+        WHERE strftime('%Y-%m', transactions.timestamp) = strftime('%Y-%m', :selectedDate) AND transactions.user_id = :user_id
+        """,
+        user_id=session['user_id'], selectedDate=session['selected_date'])[0]['t']
 
 
 
@@ -157,11 +157,63 @@ def changeToNextMonthStat():
 @login_required
 def statisticCategory(category):
 
-    return apology("yet to be implemented")
+    days = getTransactionsSortedByDayOfSelectedCategory(category)
+    transactions = getTransactionsCurrentMonthOfSelectedCategory(category)
+    allTransactions = getAllTransactionsOfSelectedCAtegory(category)
+
+    return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), categoryLabel=category, days=days, transactions=transactions, allTransactions=allTransactions, month=getSumPerMonth())
+
+# DAY
+def getTransactionsSortedByDayOfSelectedCategory(category):
+    days = db.execute("""
+        SELECT SUM(CASE WHEN exp = 1 THEN transactions.amount ELSE 0 END) AS exp_per_day, SUM(CASE WHEN exp = 0 THEN transactions.amount ELSE 0 END) AS inc_per_day, SUM(transactions.amount) AS saldo,  strftime('%Y', transactions.timestamp) AS year, strftime('%m', transactions.timestamp) AS month, STRFTIME('%d', transactions.timestamp) AS day
+        FROM transactions
+        JOIN expCategories ON expCategories.id = transactions.expCategory_id
+        WHERE transactions.user_id = 1 AND year = strftime('%Y', :selectedDate) AND month = strftime('%m', :selectedDate) AND expCategories.label = :category
+        GROUP BY year, month, day
+        ORDER by timestamp DESC
+        """,
+    user_id=session['user_id'], selectedDate=session['selected_date'], category=category)
+
+    for day in days:
+        day['exp_per_day'] = format(abs(day['exp_per_day']), ".2f")
+        day['inc_per_day'] = format(day['inc_per_day'], ".2f")
+        day['saldo'] = format(day['saldo'], ".2f")
+
+    return days
+
+# TRANSACTIONS
+def getTransactionsCurrentMonthOfSelectedCategory(category):
+    transactions = db.execute("""
+        SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp, expCategories.label AS category, STRFTIME('%d', transactions.timestamp) AS day
+        FROM transactions
+        LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
+        WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', :selectedDate) AND strftime('%m', transactions.timestamp) = strftime('%m', :selectedDate) AND expCategories.label = :category
+        ORDER BY transactions.timestamp DESC        """,
+    user_id=session['user_id'], selectedDate=session['selected_date'], category=category)
+
+    for transaction in transactions:
+        transaction['amount'] = format(abs(transaction['amount']), ".2f")
+
+    return transactions
+
+# ALL TRANSACTIONS
+def getAllTransactionsOfSelectedCAtegory(category):
+    transactions =  db.execute("""
+        SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp
+        FROM transactions
+        JOIN expCategories ON expCategories.id = transactions.expCategory_id
+        WHERE user_id = :user_id AND expCategories.id = :category
+        """,
+    user_id=session['user_id'], category=category)
+
+    for transaction in transactions:
+        transaction['amount'] = format(abs(transaction['amount']), ".2f")
+
+    return transactions
 
 
-
-
+### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ###
 app.route("/trips")
 @login_required
 def trips():
@@ -483,7 +535,8 @@ def getTransactionsCurrentMonth():
         FROM transactions
         LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id
         WHERE user_id = :user_id AND strftime('%Y', transactions.timestamp) = strftime('%Y', :selectedDate) AND strftime('%m', transactions.timestamp) = strftime('%m', :selectedDate)
-        ORDER BY transactions.timestamp DESC""",
+        ORDER BY transactions.timestamp DESC
+        """,
         user_id=session['user_id'], selectedDate=session['selected_date'])
 
     for transaction in transactions:

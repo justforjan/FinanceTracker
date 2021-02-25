@@ -53,10 +53,12 @@
 
 {% block main %}
 
+{% if not categoryLabel %}
 <div class="mb-5">
   <h1>Transactions</h1>
   <hr>
 </div>
+{% endif %}
 
 <div class="btn-group mb-4" role="group" aria-label="Basic example">
   <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeToPrevMonth()">keyboard_arrow_left</button>
@@ -66,10 +68,12 @@
 
 <div id="monthly_expenses">
 
+
 <div class="mb-2">
   <p>{{ month['month_name'] }} {{ month['YEAR'] }}</p>
 </div>
 
+{% if not categoryLabel %}
 <div class="mb-4 bg-light p-2 rounded">
   <div class="row">
     <div class="col-4 text-success">
@@ -83,6 +87,11 @@
     </div>
   </div>
 </div>
+{% else %}
+<div class="mb-2">
+  <p>{{ categoryLabel }}</p>
+</div>
+{% endif %}
 
 {% for day in days %}
 
@@ -152,31 +161,7 @@ var length = allTransactions.length
 
 console.log(allTransactions)
 
-function lookup(id) {
- console.log(id);
- //console.log(transactions);
- for (var i = 0; i < length; i++ ) {
-   if (allTransactions[i].id == id) {
-     if (allTransactions[i].exp == 1){
-       document.getElementById('editExpAmount').value = allTransactions[i].amount;
-       document.getElementById('editExpNotes').value = allTransactions[i].notes;
-       document.getElementById('editExpDate').value = allTransactions[i].timestamp;
-       document.getElementById('editExpTrip').value = allTransactions[i].trip_id;
-       document.getElementById('editExpCategory').value = allTransactions[i].expCategory_id;
-       document.getElementById('editExpId').value = allTransactions[i].id;
-     } else {
-       document.getElementById('editIncAmount').value = allTransactions[i].amount;
-       document.getElementById('editIncNotes').value = allTransactions[i].notes;
-       document.getElementById('editIncDate').value = allTransactions[i].timestamp;
-       document.getElementById('editIncId').value = allTransactions[i].id;
-     }
-   };
- };
-};
 
-function deleteTransaction(id) {
- document.getElementById("deleteId").value = id
-}
 </script>
 
 

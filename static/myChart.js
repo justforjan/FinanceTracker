@@ -68,18 +68,38 @@ var myChart = new Chart(ctx, {
 })
 
 
-function setCatBackground(){
 
 
 
 
-    for (var i = 0; i < numberOfCategories; i++){
-        document.getElementById('cat_' + i).style.backgroundColor = backgroundColorLight[i];
+
+if (numberOfCategories > 0) {
+    for (var i = 0; i < numberOfCategories; i++) {
+        document.getElementById('cat_' + i).style.backgroundColor = backgroundColorLight[i]
     }
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
