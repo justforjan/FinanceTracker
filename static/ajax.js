@@ -27,7 +27,7 @@ function changeToNextMonth() {
 
 
 
-
+/*
 function changeToPrevMonthStat() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -50,6 +50,35 @@ function changeToNextMonthStat() {
     }
   };
   xhttp.open("GET", "/changeToNextMonthStat" , true);
+  console.log(xhttp);
+  xhttp.send();
+}
+*/
+
+
+
+function changeToPrevMonthCat() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById('monthly_expenses').innerHTML = this.responseText;
+      console.log(this.responseText);
+    }
+  };
+  xhttp.open("GET", "/changeToPrevMonthCat" , true);
+  console.log(xhttp);
+  xhttp.send();
+}
+
+function changeToNextMonthCat() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById('monthly_expenses').innerHTML = this.responseText;
+      console.log(this.responseText);
+    }
+  };
+  xhttp.open("GET", "/changeToNextMonthCat" , true);
   console.log(xhttp);
   xhttp.send();
 }

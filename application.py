@@ -161,7 +161,33 @@ def statisticCategory(category):
     transactions = getTransactionsCurrentMonthOfSelectedCategory(category)
     allTransactions = getAllTransactionsOfSelectedCAtegory(category)
 
+    session['selected_category'] = category
+
     return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), categoryLabel=category, days=days, transactions=transactions, allTransactions=allTransactions, month=getSumPerMonth())
+
+
+@app.route("/changeToPrevMonthCat", methods=["GET"])
+def changeToPrevMonthCat():
+
+    changeMonth("prev")
+
+    days = getTransactionsSortedByDayOfSelectedCategory(session['selected_category'])
+    transactions = getTransactionsCurrentMonthOfSelectedCategory(session['selected_category'])
+
+
+    return render_template("indexAJAX.html", days=days, transactions=transactions, month=getSumPerMonth(), categoryLabel=session['selected_category'])
+
+
+@app.route("/changeToNextMonthCat", methods=["GET"])
+def changeToNextMonthCat():
+
+    changeMonth("next")
+
+    days = getTransactionsSortedByDayOfSelectedCategory(session['selected_category'])
+    transactions = getTransactionsCurrentMonthOfSelectedCategory(session['selected_category'])
+
+    return render_template('indexAJAX.html', days=days, month=getSumPerMonth(), transactions=transactions, categoryLabel=session['selected_category'])
+
 
 # DAY
 def getTransactionsSortedByDayOfSelectedCategory(category):
@@ -169,7 +195,7 @@ def getTransactionsSortedByDayOfSelectedCategory(category):
         SELECT SUM(CASE WHEN exp = 1 THEN transactions.amount ELSE 0 END) AS exp_per_day, SUM(CASE WHEN exp = 0 THEN transactions.amount ELSE 0 END) AS inc_per_day, SUM(transactions.amount) AS saldo,  strftime('%Y', transactions.timestamp) AS year, strftime('%m', transactions.timestamp) AS month, STRFTIME('%d', transactions.timestamp) AS day
         FROM transactions
         JOIN expCategories ON expCategories.id = transactions.expCategory_id
-        WHERE transactions.user_id = 1 AND year = strftime('%Y', :selectedDate) AND month = strftime('%m', :selectedDate) AND expCategories.label = :category
+        WHERE transactions.user_id = :user_id AND year = strftime('%Y', :selectedDate) AND month = strftime('%m', :selectedDate) AND expCategories.label = :category
         GROUP BY year, month, day
         ORDER by timestamp DESC
         """,

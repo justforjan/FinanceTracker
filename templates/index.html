@@ -53,18 +53,17 @@
 
 {% block main %}
 
-{% if not categoryLabel %}
+
 <div class="mb-5">
-  <h1>Transactions</h1>
+  <h1>{% if not categoryLabel %} Transactions {% else %} {{ categoryLabel }} {% endif %}</h1>
   <hr>
 </div>
-{% endif %}
+
 
 <div class="btn-group mb-4" role="group" aria-label="Basic example">
-  <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeToPrevMonth()">keyboard_arrow_left</button>
-  <button type="button" class="btn btn-primary material-icons" id="next_month" onclick="changeToNextMonth()">keyboard_arrow_right</button>
+  <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick={% if not categoryLabel %}"changeToPrevMonth()" {% else %} "changeToPrevMonthCat()" {% endif %}>keyboard_arrow_left</button>
+  <button type="button" class="btn btn-primary material-icons" id="next_month" onclick={% if not categoryLabel %}"changeToNextMonth()" {% else %} "changeToNextMonthCat()" {% endif %}>keyboard_arrow_right</button>
 </div>
-
 
 <div id="monthly_expenses">
 
@@ -87,10 +86,7 @@
     </div>
   </div>
 </div>
-{% else %}
-<div class="mb-2">
-  <p>{{ categoryLabel }}</p>
-</div>
+
 {% endif %}
 
 {% for day in days %}
