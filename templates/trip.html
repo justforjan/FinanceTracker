@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ tripData['title'] }}
+{% endblock %}
+
+
+{% block searchBar %}
+
+
+
+{% endblock %}
+
+
+
+
+{% block main %}
+
+
+
+<div class="mb-5">
+  <h1>{{ tripData['title'] }}</h1>
+  <hr>
+</div>
+
+<div class="d-flex justify-content-center mb-4">
+<img src="https://www.countryflags.io/be/flat/64.png">
+<img src="https://www.countryflags.io/bj/flat/64.png">
+</div>
+
+<div class="row text-left">
+  <div class="col-md-6 mb-4">
+    <div class="col-12">
+      <div class="row mb-2 bg-light p-2 rounded border">
+        {{ tripData['startDay'] }} {{ tripData['startMonth_name'] }}. {{ tripData['startYear'] }} - {{ tripData['endDay'] }} {{ tripData['endMonth_name'] }}. {{ tripData['endYear'] }}
+      </div>
+      <div class="row mb-2 bg-light p-2 rounded border">
+        <span>Duration: <b>{{ tripData['duration'] }} day{% if tripData['duration'] > 1 %}s{% endif %}</b></span>
+      </div>
+      <div class="row mb-2">
+        <div class="col bg-light p-2 mr-4 rounded border">
+          <span>Total expenses: <br><b>€ {{ tripData['SUM'] }}</b></span>
+        </div>
+        <div class="col bg-light p-2 rounded border">
+          <span>Daily average spent: <br><b>€ {{ tripData['daily_average'] }}</b></span>
+        </div>
+      </div>
+      <div class="row">
+
+          <button type="button" class="btn btn-outline-primary btn-block" onclick="lookup(this.value)" value="{{ tripData['id'] }}" data-toggle="modal" data-target=>Edit Trip</button>
+
+          <button type="button" class="btn btn-outline-danger btn-block" onclick="deleteTransaction(this.value)" value="{{ tripData['id'] }}" data-toggle="modal" data-target="#deleteTripModal">Delete Trip</button>
+
+      </div>
+
+    </div>
+  </div>
+  {% if tripData['SUM'] != '0.00' %}
+  <div class="col-md-6 mb-4">
+    <canvas id="myChart" aria-label="chart" role="img"></canvas>
+  </div>
+  {% endif %}
+</div>
+<div class="row">
+  <div class="col-12 bg-light">
+    Test
+  </div>
+</div>
+
+
+{% if tripData['SUM'] != '0.00' %}
+<script>
+var ctx = document.getElementById('myChart').getContext('2d');
+var labels = [];
+var data = [];
+{% for category in tripCategories %}
+  labels.push("{{ category['category_label'] }}");
+  data.push("{{ category['percentage'] }}");
+{% endfor %}
+numberOfCategories = labels.length;
+console.log(labels)
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script type="text/javascript" src="/static/myChart.js"></script>
+{% endif %}
+
+
+{% endblock %}

@@ -117,14 +117,14 @@ def changeToPrevMonthStat():
 
     changeMonth("prev")
 
-    return statistics()
+    return redirect("/statistics")
 
 @app.route("/statistics/nextMonth", methods=["GET"])
 def changeToNextMonthStat():
 
     changeMonth("next")
 
-    return statistics()
+    return redirect("/statistics")
 
 def getMonthData(monthTotal):
     month = db.execute("""
@@ -159,7 +159,7 @@ def statisticCategory(category):
 
     days = getTransactionsSortedByDayOfSelectedCategory(category)
     transactions = getTransactionsCurrentMonthOfSelectedCategory(category)
-    allTransactions = getAllTransactionsOfSelectedCAtegory(category)
+    allTransactions = getAllTransactionsOfSelectedCategory(category)
 
     session['selected_category'] = category
 
@@ -224,7 +224,7 @@ def getTransactionsCurrentMonthOfSelectedCategory(category):
     return transactions
 
 # ALL TRANSACTIONS with selected category
-def getAllTransactionsOfSelectedCAtegory(category):
+def getAllTransactionsOfSelectedCategory(category):
     transactions =  db.execute("""
         SELECT transactions.id, transactions.timestamp, transactions.expCategory_id, transactions.trip_id, transactions.notes, transactions.amount, transactions.exp
         FROM transactions
@@ -240,7 +240,8 @@ def getAllTransactionsOfSelectedCAtegory(category):
 
 
 ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ### TRIPS ###
-app.route("/trips")
+
+@app.route("/trips")
 @login_required
 def trips():
     """Show trips"""
@@ -250,12 +251,64 @@ def trips():
 
 @app.route("/trips/<trip>")
 @login_required
-def trip(trip):
+def selectedTrip(trip):
     """Show data of selected Trip"""
 
-    return apology("yet to be implemented")
+    selectedTripData = getSelectedTrip(trip)
+    selectedTripExpCategories = getTripExpensesGroupedByCategory(selectedTripData['id'], selectedTripData['SUM'])
+
+    return render_template("trip.html", expCategories=getExpCategories(), trips=getTrips(), tripData=selectedTripData, tripCategories=selectedTripExpCategories)
 
 
+def getSelectedTrip(trip):
+    trip = db.execute("""
+        SELECT trips.id, trips.title, trips.startDate, trips.endDate, SUM(transactions.amount) * (-1) AS sum
+        FROM trips
+        LEFT JOIN transactions ON transactions.trip_id = trips.id
+        WHERE trips.user_id = :user_id AND trips.title = :trip
+        ORDER BY trips.startDate DESC
+        """,
+    user_id=session['user_id'], trip=trip)[0]
+
+
+
+    trip['startMonth_name'] = calendar.month_abbr[int(datetime.date.fromisoformat(trip['startDate']).month)]
+    trip['startDay'] = datetime.date.fromisoformat(trip['startDate']).day
+    trip['startYear'] = datetime.date.fromisoformat(trip['startDate']).year
+
+    trip['endMonth_name'] = calendar.month_abbr[int(datetime.date.fromisoformat(trip['endDate']).month)]
+    trip['endDay'] = datetime.date.fromisoformat(trip['endDate']).day
+    trip['endYear'] = datetime.date.fromisoformat(trip['endDate']).year
+
+    trip['duration'] = (datetime.date.fromisoformat(trip['endDate']) - datetime.date.fromisoformat(trip['startDate'])).days + 1
+
+    print(trip['SUM'] == 0)
+    print(trip['SUM'] == None)
+    print(trip['SUM'] == '0')
+
+    if trip['SUM'] != None:
+        trip['daily_average'] = format(round((trip['SUM'] / float(trip['duration'])), 2), ".2f")
+    else:
+        trip['daily_average'] = '0.00'
+        trip['SUM'] = '0.00'
+
+    return trip
+
+def  getTripExpensesGroupedByCategory(trip_id, tripTotal):
+    categories = db.execute("""
+        SELECT SUM(CASE WHEN transactions.exp = 1 THEN transactions.amount ELSE 0 END) * (-1) AS exp_per_category, expCategories.label AS category_label, expCategories.id AS category_id
+        FROM transactions
+        JOIN expCategories ON transactions.expCategory_id = expCategories.id
+        WHERE transactions.trip_id = :trip_id AND transactions.user_id = :user_id
+        GROUP BY transactions.expCategory_id
+        ORDER BY exp_per_category DESC
+        """,
+    trip_id=trip_id, user_id=session['user_id'])
+
+    for category in categories:
+        category['percentage'] = round(category['exp_per_category'] / tripTotal *100)
+
+    return categories
 
 @app.route("/addExpenseIncomeTrip", methods=["POST"])
 @login_required
@@ -503,8 +556,23 @@ def getExpCategories():
 
 
 def getTrips():
-    return db.execute("SELECT id, title, startDate, endDate FROM trips WHERE user_id = :user_id ORDER BY startDate DESC",
-                        user_id=session['user_id'])
+    trips = db.execute("""
+        SELECT id, title, startDate, endDate FROM trips WHERE user_id = :user_id ORDER BY startDate DESC
+        """,
+        user_id=session['user_id'])
+
+    for trip in trips:
+        trip['startMonth_name'] = calendar.month_abbr[int(datetime.date.fromisoformat(trip['startDate']).month)]
+        trip['startDay'] = datetime.date.fromisoformat(trip['startDate']).day
+        trip['startYear'] = datetime.date.fromisoformat(trip['startDate']).year
+
+        trip['endMonth_name'] = calendar.month_abbr[int(datetime.date.fromisoformat(trip['endDate']).month)]
+        trip['endDay'] = datetime.date.fromisoformat(trip['endDate']).day
+        trip['endYear'] = datetime.date.fromisoformat(trip['endDate']).year
+
+    return trips
+
+
 
 def getTransactions():
     return db.execute("SELECT * FROM transactions LEFT JOIN expCategories ON transactions.expCategory_id = expCategories.id WHERE user_id = :user_id ORDER BY transactions.timestamp DESC", user_id=session['user_id'])
@@ -583,18 +651,6 @@ def getAllTransactions():
         transaction['amount'] = format(abs(transaction['amount']), ".2f")
 
     return transactions
-
-
-
-
-def returnToStart():
-    return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), transactions=getTransactions(), allTransactions=getAllTransactions())
-
-
-
-
-def returnToTrips():
-    return render_template("trips.html", expCategories=getExpCategories(), trips=getTrips())
 
 
 

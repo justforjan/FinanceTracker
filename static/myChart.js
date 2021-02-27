@@ -72,10 +72,11 @@ var myChart = new Chart(ctx, {
 
 
 
-
-if (numberOfCategories > 0) {
-    for (var i = 0; i < numberOfCategories; i++) {
-        document.getElementById('cat_' + i).style.backgroundColor = backgroundColorLight[i]
+function setBackgroundColor(){
+    if (numberOfCategories > 0) {
+        for (var i = 0; i < numberOfCategories; i++) {
+            document.getElementById('cat_' + i).style.backgroundColor = backgroundColorLight[i]
+        }
     }
 }
 

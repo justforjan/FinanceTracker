@@ -7,7 +7,7 @@
 
 {% block body %}
 
-
+onload="setBackgroundColor()"
 
 {% endblock %}
 
@@ -76,9 +76,6 @@
 
 
   <div class="wrapper">
-    <div class="title text-center mb-5">
-      <h1></h1>
-    </div>
     <div class="chart-wrapper">
       <canvas id="myChart" aria-label="chart" role="img"></canvas>
     </div>
@@ -115,9 +112,6 @@
 
 
 {% endif %}
-
-
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
