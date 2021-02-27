@@ -280,13 +280,48 @@ def trips():
     return render_template("trips.html", expCategories=getExpCategories(), trips=getTrips())
 
 
+@app.route("/editTrip", methods=['POST'])
+@login_required
+def editTrip():
+    """Edit Trip"""
+
+    # Check, if every necessary info was given
+    if not request.form.get("editTripTitle"):
+        flash("You did not complete the form")
+        return redirect("/trips")
+
+    if not request.form.get("editStartDate"):
+        flash("You did not complete the form")
+        return redirect("/trips")
+
+    if not request.form.get("editEndDate"):
+        flash("You did not complete the form")
+        return redirect("/trips")
+
+    title = request.form.get("editTripTitle")
+    startDate = request.form.get("editStartDate")
+    endDate = request.form.get("editEndDate")
+    trip_id = request.form.get("editTripId")
+
+    db.execute("""
+    UPDATE trips
+    SET title = :title, startDate = :startDate, endDate = :endDate
+    WHERE id = :trip_id
+    """,
+    title=title, startDate=startDate, endDate=endDate, trip_id=trip_id)
+
+    return redirect("/trips/" + session['selected_trip_title'])
+
+
 @app.route("/trips/<trip>")
 @login_required
 def selectedTrip(trip):
     """Show data of selected Trip"""
 
     selectedTripData = getSelectedTrip(trip)
-    session['selected_trip'] = selectedTripData['id']
+    session['selected_trip_id'] = selectedTripData['id']
+    session['selected_trip_title'] = selectedTripData['title']
+    print(type(session['selected_trip_title']))
     selectedTripExpCategories = getTripExpensesGroupedByCategory(selectedTripData['id'], selectedTripData['SUM'])
 
     session['selected_trip_month'] = selectedTripData['startDate']
@@ -305,14 +340,15 @@ def changeMonthTrip(direction):
     session['selected_trip_month'] = changeMonth(session['selected_trip_month'], direction)
 
     # Transactions
-    transactions = getTripExpensesOfSelectedMonth(session['selected_trip'])
+    transactions = getTripExpensesOfSelectedMonth(session['selected_trip_id'])
 
     # Day (Transactions sorted by day)
-    days = getTripExpensesSelectedMonthGroupedByDay(session['selected_trip'])
+    days = getTripExpensesSelectedMonthGroupedByDay(session['selected_trip_id'])
 
     month = getMonthName(session['selected_trip_month'])
 
     return render_template("indexAJAX.html", transactions=transactions, days=days, month=month)
+
 
 
 def getSelectedTrip(trip):

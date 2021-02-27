@@ -50,8 +50,8 @@ onload="changeMonthTrip('curr')"
         </div>
       </div>
       <div class="row">
-          <button type="button" class="btn btn-outline-primary btn-block" onclick="lookup(this.value)" value="{{ tripData['id'] }}" data-toggle="modal" ddata-target="#editTripModal"=>Edit Trip</button>
-          <button type="button" class="btn btn-outline-danger btn-block" onclick="deleteTransaction(this.value)" value="{{ tripData['id'] }}" data-toggle="modal" data-target="#deleteTripModal">Delete Trip</button>
+          <button type="button" class="btn btn-outline-primary btn-block" data-toggle="modal" data-target="#editTripModal"=>Edit Trip</button>
+          <button type="button" class="btn btn-outline-danger btn-block" data-toggle="modal" data-target="#deleteTripModal">Delete Trip</button>
       </div>
 
     </div>
@@ -102,7 +102,7 @@ numberOfCategories = labels.length;
         <h1>Edit Trip</h1>
       </div>
       <div class="modal-body">
-          <form id="editTripForm" style="text-align: left;" action="/trips/editTrip" method="post">
+          <form id="editTripForm" style="text-align: left;" action="/editTrip" method="post">
               <div class="form-group">
                 <label for="editTripTitle" class="font-weight-bold">Trip Title:</label> <br>
                 <input class="form-control w-100" name="editTripTitle" placeholder="Choose Trip Title" id="editTripTitle" type="text" value="{{ tripData['title'] }}" required>
