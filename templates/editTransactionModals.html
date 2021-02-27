@@ -1,0 +1,146 @@
+<script>
+var allTransactions = JSON.parse('{{ allTransactions | tojson | safe }}');
+var numberOfAllTransactions = allTransactions.length
+</script>
+
+
+
+<!-- Edit Expense Modal-->
+<div class="modal fade" id="editExpModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+        <h1>Edit Expense</h1>
+      </div>
+      <div class="modal-body">
+          <form id="editExpForm" method="post" action="/editExpenses">
+              <div class="form-group">
+                <label for="editExpDate" class="font-weight-bold">Date:</label> <br>
+                <input autofocus class="form-control w-100" name="editExpDate" placeholder="Enter Date" id="editExpDate" type="date" required>
+              </div>
+              <div class="form-group">
+                <label for="editExpAccount" class="font-weight-bold" disabled>Account:</label> <br>
+                <select disabled class="form-control w-100" name="editExpAccount" placeholder="Enter Account" id="editExpAccount" type="text">
+                    <option selected>Account</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editExpCategory" class="font-weight-bold">Category:</label> <br>
+                <select class="form-control w-100" name="editExpCategory" placeholder="Choose Category" id="editExpCategory" type="text" required>
+                  <option disabled selected value="">Category</option>
+                  {% for cat in expCategories %}
+                    <option value="{{ cat['id'] }}">{{ cat['label'] }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editExpTrip" class="font-weight-bold">Trip or Home:</label> <br>
+                <select class="form-control w-100" name="editExpTrip" placeholder="Enter Trip or Home" id="editExpTrip" type="text" required>
+                    <option selected value="1">Home</option>
+                    {% for trip in trips %}
+                      <option value="{{ trip['id'] }}">{{ trip['title'] }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editExpAmount" class="font-weight-bold">Amount:</label> <br>
+                <input class="form-control w-100" name="editExpAmount" lang="en_EN" placeholder="Enter Amount" id="editExpAmount" min="0" step="0.01" type="number" value="" required>
+              </div>
+              <div class="form-group">
+                <label for="editExpNotes" class="font-weight-bold">Notes:</label> <br>
+                <input class="form-control w-100" name="editExpNotes" placeholder="Enter Notes" id="editExpNotes" type="text">
+              </div>
+              <div class="form-group">
+                <input class="form-control w-100" name="editExpId" id="editExpId" type="hidden">
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                <div class="col">
+                    <input type="submit" class="btn btn-primary btn-block" id="editExpSave" value="Save" form="editExpForm">
+                    <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit Income Modal -->
+<div class="modal fade" id="editIncModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+        <h1>Edit Income</h1>
+      </div>
+      <div class="modal-body">
+          <form id="editIncForm" style="text-align: left;" method="post" action="/editIncome">
+              <div class="form-group">
+                <label for="editIncDate" class="font-weight-bold">Date:</label> <br>
+                <input autofocus class="form-control w-100" name="editIncDate" placeholder="Enter Date" id="editIncDate" type="date">
+              </div>
+              <div class="form-group">
+                <label for="editIncAccount" class="font-weight-bold" disabled>Account:</label> <br>
+                <select disabled class="form-control w-100" name="editIncAccount" placeholder="Enter Account" id="editIncAccount" type="text">
+                    <option selected>Account</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editIncAmount" class="font-weight-bold">Amount:</label> <br>
+                <input class="form-control w-100" name="editIncAmount" lang="en_EN" placeholder="Enter Amount" id="editIncAmount" min="0" step="0.01" type="number">
+              </div>
+              <div class="form-group">
+                <label for="editIncNotes" class="font-weight-bold">Notes:</label> <br>
+                <input class="form-control w-100" name="editIncNotes" placeholder="Enter Notes" id="editIncNotes" type="text">
+              </div>
+              <div class="form-group">
+                <input class="form-control w-100" name="editIncId" id="editIncId" type="hidden">
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                  <div class="col">
+                      <input type="submit" class="btn btn-primary btn-block" value="Save" form="editIncForm">
+                      <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this transaction?</p>
+          <form id="deleteForm" style="text-align: left;" method="post" action="/deleteTransaction">
+            <div class="form-group">
+              <input class="form-control w-100" name="deleteId" id="deleteId" type="hidden">
+            </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                  <div class="col">
+                      <input type="submit" class="btn btn-primary btn-block" value="Yes" form="deleteForm">
+                      <input type="button" class="btn btn-default border-primary btn-block" value="No" data-dismiss="modal">
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

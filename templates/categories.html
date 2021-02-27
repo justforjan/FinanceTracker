@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ categoryLabel }}
+{% endblock %}
+
+
+{% block body %}
+
+onload="changeMonthCat('curr')"
+
+{% endblock %}
+
+{% block main %}
+
+
+<div class="mb-5">
+  <h1>{{ categoryLabel }}</h1>
+  <hr>
+</div>
+
+
+<div class="btn-group mb-4" role="group" aria-label="Basic example">
+  <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeMonthCat('prev')">keyboard_arrow_left</button>
+  <button type="button" class="btn btn-primary material-icons" id="next_month" onclick="changeMonthCat('next')">keyboard_arrow_right</button>
+</div>
+
+<div id="monthly_expenses">
+
+</div>
+
+
+{% include 'editTransactionModals.html' %}
+
+{% endblock %}

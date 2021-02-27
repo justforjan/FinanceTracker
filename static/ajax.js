@@ -1,84 +1,42 @@
-
-function changeToPrevMonth() {
+function changeMonthIndex(dir) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       document.getElementById('monthly_expenses').innerHTML = this.responseText;
-      console.log(this.responseText);
     }
   };
-  xhttp.open("GET", "/changeToPrevMonth" , true);
-  console.log(xhttp);
+  xhttp.open("GET", "/changeMonth/" + dir , true);
   xhttp.send();
 }
 
-function changeToNextMonth() {
+
+
+
+
+function changeMonthCat(dir) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       document.getElementById('monthly_expenses').innerHTML = this.responseText;
-      console.log(this.responseText);
     }
   };
-  xhttp.open("GET", "/changeToNextMonth" , true);
-  console.log(xhttp);
+  xhttp.open("GET", "/statistics/changeMonth/" + dir , true);
   xhttp.send();
 }
 
 
 
-/*
-function changeToPrevMonthStat() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById('monthly_statistics').innerHTML = this.responseText;
-      console.log(this.responseText);
-    }
-  };
-  xhttp.open("GET", "/changeToPrevMonthStat" , true);
-  console.log(xhttp);
-  xhttp.send();
-}
-
-function changeToNextMonthStat() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById('monthly_statistics').innerHTML = this.responseText;
-      console.log(this.responseText);
-    }
-  };
-  xhttp.open("GET", "/changeToNextMonthStat" , true);
-  console.log(xhttp);
-  xhttp.send();
-}
-*/
 
 
 
-function changeToPrevMonthCat() {
+
+function changeMonthTrip(dir) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       document.getElementById('monthly_expenses').innerHTML = this.responseText;
-      console.log(this.responseText);
     }
   };
-  xhttp.open("GET", "/changeToPrevMonthCat" , true);
-  console.log(xhttp);
-  xhttp.send();
-}
-
-function changeToNextMonthCat() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById('monthly_expenses').innerHTML = this.responseText;
-      console.log(this.responseText);
-    }
-  };
-  xhttp.open("GET", "/changeToNextMonthCat" , true);
-  console.log(xhttp);
+  xhttp.open("GET", "/trips/changeMonth/" + dir , true);
   xhttp.send();
 }

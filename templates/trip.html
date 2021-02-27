@@ -4,14 +4,18 @@
     {{ tripData['title'] }}
 {% endblock %}
 
+{% block body %}
+
+onload="changeMonthTrip('curr')"
+
+{% endblock %}
+
 
 {% block searchBar %}
 
 
 
 {% endblock %}
-
-
 
 
 {% block main %}
@@ -46,11 +50,8 @@
         </div>
       </div>
       <div class="row">
-
-          <button type="button" class="btn btn-outline-primary btn-block" onclick="lookup(this.value)" value="{{ tripData['id'] }}" data-toggle="modal" data-target=>Edit Trip</button>
-
+          <button type="button" class="btn btn-outline-primary btn-block" onclick="lookup(this.value)" value="{{ tripData['id'] }}" data-toggle="modal" ddata-target="#editTripModal"=>Edit Trip</button>
           <button type="button" class="btn btn-outline-danger btn-block" onclick="deleteTransaction(this.value)" value="{{ tripData['id'] }}" data-toggle="modal" data-target="#deleteTripModal">Delete Trip</button>
-
       </div>
 
     </div>
@@ -61,12 +62,19 @@
   </div>
   {% endif %}
 </div>
-<div class="row">
-  <div class="col-12 bg-light">
-    Test
+
+{% if tripData['SUM'] != '0.00' %}
+<div class="d-flex flex-row justify-content-center mt-5">
+  <div class="btn-group mb-4" role="group" aria-label="Basic example">
+    <button type="button" class="btn btn-primary material-icons" id="prev_month" onclick="changeMonthTrip('prev')">keyboard_arrow_left</button>
+    <button type="button" class="btn btn-primary material-icons" id="next_month" onclick="changeMonthTrip('next')">keyboard_arrow_right</button>
   </div>
 </div>
 
+<div id="monthly_expenses">
+
+</div>
+{% endif %}
 
 {% if tripData['SUM'] != '0.00' %}
 <script>
@@ -78,11 +86,54 @@ var data = [];
   data.push("{{ category['percentage'] }}");
 {% endfor %}
 numberOfCategories = labels.length;
-console.log(labels)
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 <script type="text/javascript" src="/static/myChart.js"></script>
 {% endif %}
+
+
+{% include 'editTransactionModals.html' %}
+
+<!-- Trip Modal -->
+<div class="modal fade" id="editTripModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+        <h1>Edit Trip</h1>
+      </div>
+      <div class="modal-body">
+          <form id="editTripForm" style="text-align: left;" action="/trips/editTrip" method="post">
+              <div class="form-group">
+                <label for="editTripTitle" class="font-weight-bold">Trip Title:</label> <br>
+                <input class="form-control w-100" name="editTripTitle" placeholder="Choose Trip Title" id="editTripTitle" type="text" value="{{ tripData['title'] }}" required>
+              </div>
+              <div class="form-group">
+                <label for="editStartDate" class="font-weight-bold">Start Date:</label> <br>
+                <input autofocus class="form-control w-100" name="editStartDate" placeholder="Enter Start Date" id="editStartDate" type="date" value="{{ tripData['startDate'] }}" required>
+              </div>
+              <div class="form-group">
+                <label for="editEndDate" class="font-weight-bold">End Date:</label> <br>
+                <input autofocus class="form-control w-100" name="editEndDate" placeholder="Enter End Date" id="editEndDate" type="date" value="{{ tripData['endDate'] }}" required>
+              </div>
+              <div class="form-group">
+                <input class="form-control w-100" name="editTripId" id="editTripId" value="{{ tripData['id'] }}"type="hidden">
+              </div>
+
+          </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                  <div class="col">
+                      <input type="submit" class="btn btn-primary btn-block" value="Save" form="editTripForm">
+                      <input type="button" class="btn btn-default border-primary btn-block" value="Close" data-dismiss="modal">
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 {% endblock %}

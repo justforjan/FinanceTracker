@@ -5,6 +5,12 @@ import urllib.parse
 from flask import redirect, render_template, request, session
 from functools import wraps
 
+from cs50 import SQL
+import datetime
+import calendar
+
+# Configure CS50 Library to use SQLite database
+db = SQL("sqlite:///financetracker.db")
 
 def apology(message, code=400):
     """Render message as an apology to user."""

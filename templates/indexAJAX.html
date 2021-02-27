@@ -2,7 +2,7 @@
   <p>{{ month['month_name'] }} {{ month['YEAR'] }}</p>
 </div>
 
-{% if not categoryLabel %}
+{% if month['inc_per_month'] %}
 <div class="mb-4 bg-light p-2 rounded">
   <div class="row">
     <div class="col-4 text-success">
@@ -16,7 +16,6 @@
     </div>
   </div>
 </div>
-
 {% endif %}
 
 {% for day in days %}
@@ -28,9 +27,9 @@
         <tr class="text-left d-flex">
           <th scope="col" class="col-2 bg-primary text-center text-white">{{ day['DAY'] }}.{{ day['MONTH'] }}</th>
           <th scope="col" class="col-4"></th>
-          <th scope="col" class="text-success col">{% if not categoryLabel %}€ {{ day['inc_per_day'] }}{% endif %}</th>
+          <th scope="col" class="text-success col">{% if month['inc_per_month'] %}€ {{ day['inc_per_day'] }}{% endif %}</th>
           <th scope="col" class="text-danger col">€ {{ day['exp_per_day'] }}</th>
-          <th scope="col" class="col-2">{% if not categoryLabel %}€ {{ day['saldo'] }}{% endif %}</th>
+          <th scope="col" class="col-2">{% if month['inc_per_month'] %}€ {{ day['saldo'] }}{% endif %}</th>
         </tr>
       </thead>
 
