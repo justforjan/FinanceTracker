@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block body %}
-
+{% if tripData['SUM'] != '0.00' %}
 onload="changeMonthTrip('curr')"
-
+{% endif %}
 {% endblock %}
 
 
@@ -27,7 +27,7 @@ onload="changeMonthTrip('curr')"
   <hr>
 </div>
 
-<div class="d-flex justify-content-center mb-4">
+<div class="row justify-content-center mb-5">
   <div id="flags">
   </div>
 </div>
@@ -36,7 +36,7 @@ onload="changeMonthTrip('curr')"
   <div class="col-md-6 mb-4">
     <div class="col-12">
       <div class="row mb-2 bg-light p-2 rounded border">
-        {{ tripData['startDay'] }} {{ tripData['startMonth_name'] }}. {{ tripData['startYear'] }} - {{ tripData['endDay'] }} {{ tripData['endMonth_name'] }}. {{ tripData['endYear'] }}
+        <span>{{ tripData['startDay'] }} {{ tripData['startMonth_name'] }}. {{ tripData['startYear'] }} - {{ tripData['endDay'] }} {{ tripData['endMonth_name'] }}. {{ tripData['endYear'] }}</span>
       </div>
       <div class="row mb-2 bg-light p-2 rounded border">
         <span>Duration: <b>{{ tripData['duration'] }} day{% if tripData['duration'] > 1 %}s{% endif %}</b></span>
@@ -46,7 +46,7 @@ onload="changeMonthTrip('curr')"
           <span>Total expenses: <br><b>€ {{ tripData['SUM'] }}</b></span>
         </div>
         <div class="col bg-light p-2 rounded border">
-          <span>Daily average spent: <br><b>€ {{ tripData['daily_average'] }}</b></span>
+          <span>Daily average spent: <br><b>€ {{ tripData['daily_average'] }}</b>{% if tripData['current'] %}<span class="badge badge-info ml-2">Current</span>{% endif %}</span>
         </div>
       </div>
       <div class="row">
@@ -92,15 +92,15 @@ numberOfCategories = labels.length;
 {% endif %}
 
 <script>
-{% for flag in flags %}
-document.getElementById('flags').insertAdjacentHTML('afterend', '<img src="https://www.countryflags.io/' + '{{ flag["country_code"] }}' + '/flat/64.png">')
+{% for code in countryCodes %}
+document.getElementById('flags').insertAdjacentHTML('afterend', '<img src="https://www.countryflags.io/' + '{{ code }}' + '/flat/64.png">')
 {% endfor %}
 </script>
 
 
 {% include 'editTransactionModals.html' %}
 
-<!-- Trip Modal -->
+<!-- Edit Trip Modal -->
 <div class="modal fade" id="editTripModal">
   <div class="modal-dialog modal-dialog-centered modal-md">
     <div class="modal-content border-0">
@@ -113,14 +113,26 @@ document.getElementById('flags').insertAdjacentHTML('afterend', '<img src="https
                 <label for="editTripTitle" class="font-weight-bold">Trip Title:</label> <br>
                 <input class="form-control w-100" name="editTripTitle" placeholder="Choose Trip Title" id="editTripTitle" type="text" value="{{ tripData['title'] }}" required>
               </div>
+
               <div class="form-group">
                 <label for="editStartDate" class="font-weight-bold">Start Date:</label> <br>
                 <input autofocus class="form-control w-100" name="editStartDate" placeholder="Enter Start Date" id="editStartDate" type="date" value="{{ tripData['startDate'] }}" required>
               </div>
+
               <div class="form-group">
                 <label for="editEndDate" class="font-weight-bold">End Date:</label> <br>
                 <input autofocus class="form-control w-100" name="editEndDate" placeholder="Enter End Date" id="editEndDate" type="date" value="{{ tripData['endDate'] }}" required>
               </div>
+
+              <div class="form-group">
+                <label for="editTripCountries" class="font-weight-bold">Countries:</label> <br>
+                <select class="selectpicker" name="editTripCountries" id="editTripCountries" multiple data-live-search="true">
+                  {% for country in countries %}
+                  <option value="{{ country['alpha2Code'] }}" {% if country['alpha2Code'].lower() in countryCodes %} selected="selected" {% endif %}>{{ country['name'] }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
               <div class="form-group">
                 <input class="form-control w-100" name="editTripId" id="editTripId" value="{{ tripData['id'] }}"type="hidden">
               </div>
@@ -140,6 +152,75 @@ document.getElementById('flags').insertAdjacentHTML('afterend', '<img src="https
     </div>
   </div>
 </div>
+
+<!-- Delete Trip Modal -->
+<div class="modal fade" id="deleteTripModal">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white justify-content-center">
+      </div>
+      <div class="modal-body text-left">
+        <p><u>Choose one of the following options regarding the transactions assigned to this trip:</u></p>
+        <form id="deleteTripForm" style="text-align: left;" method="post" action="/deleteTrip">
+
+          <div class="form-group">
+            <input class="form-control w-100" name="deleteTripId" id="deleteTripId" type="hidden" value="{{ tripData['id'] }}">
+          </div>
+
+          <div class="custom-control custom-radio">
+            <input type="radio" id="option1" name="option" class="custom-control-input" value="option1" checked="checked">
+            <label class="custom-control-label" for="option1">Delete all Transactions</label>
+          </div>
+
+          <div class="custom-control custom-radio mt-2">
+            <input type="radio" id="option2" name="option" class="custom-control-input" value="option2">
+            <label class="custom-control-label" for="option2">Reassign to other trip/Home</label>
+          </div>
+
+          <div class="form-group mt-4">
+            <select class="form-control w-100" name="expTripReassign" placeholder="Enter Trip or Home" id="expTripReassign" type="text">
+                <option selected value="1">Home</option>
+                {% for trip in trips %}
+                  <option value="{{ trip['id'] }}">{{ trip['title'] }}</option>
+                {% endfor %}
+            </select>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+          <div class="container">
+              <div class="row">
+                  <div class="col">
+                      <input type="submit" class="btn btn-primary btn-block" value="Delete" form="deleteTripForm">
+                      <input type="button" class="btn btn-default border-primary btn-block" value="Do not delete" data-dismiss="modal">
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+var option2 = document.getElementById('option2')
+var option1 = document.getElementById('option1')
+var trips = document.getElementById('expTripReassign')
+
+trips.disabled = true;
+
+option1.addEventListener("click", function(e) {
+  trips.disabled = true;
+})
+
+option2.addEventListener("click", function(e) {
+  trips.disabled = false;
+})
+
+
+</script>
+
 
 
 {% endblock %}

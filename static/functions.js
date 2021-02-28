@@ -59,5 +59,6 @@ function lookup(id) {
 };
 
 function deleteTransaction(id) {
- document.getElementById("deleteId").value = id
+ document.getElementById("deleteId").value = id;
 }
+

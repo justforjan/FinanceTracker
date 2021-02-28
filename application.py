@@ -281,6 +281,34 @@ def trips():
     return render_template("trips.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries())
 
 
+@app.route("/trips/<trip>")
+@login_required
+def selectedTrip(trip):
+    """Show data of selected Trip"""
+
+    selectedTripData = getSelectedTrip(trip)
+    session['selected_trip_id'] = selectedTripData['id']
+    session['selected_trip_title'] = selectedTripData['title']
+
+    selectedTripExpCategories = getTripExpensesGroupedByCategory(selectedTripData['id'], selectedTripData['SUM'])
+
+    session['selected_trip_month'] = selectedTripData['startDate']
+
+    cc = db.execute("""
+    SELECT country_code
+    FROM countries
+    WHERE trip_id = :trip_id
+    """,
+    trip_id=session['selected_trip_id'])
+
+    selectedCountryCodes = [c['country_code'] for c in cc]
+
+    # All Transactions
+    allTransactions = getAllExpensesOfTrip(selectedTripData['id'])
+
+    return render_template("trip.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries(), tripData=selectedTripData, tripCategories=selectedTripExpCategories, allTransactions=allTransactions, countryCodes=selectedCountryCodes)
+
+
 @app.route("/editTrip", methods=['POST'])
 @login_required
 def editTrip():
@@ -303,6 +331,15 @@ def editTrip():
     startDate = request.form.get("editStartDate")
     endDate = request.form.get("editEndDate")
     trip_id = request.form.get("editTripId")
+    countries =  request.form.getlist("editTripCountries")
+
+    db.execute("""
+        DELETE FROM countries
+        WHERE trip_id = :trip_id
+        """,
+    trip_id=trip_id)
+
+    insertCountries(countries, trip_id)
 
     db.execute("""
     UPDATE trips
@@ -311,35 +348,51 @@ def editTrip():
     """,
     title=title, startDate=startDate, endDate=endDate, trip_id=trip_id)
 
-    return redirect("/trips/" + session['selected_trip_title'])
+    return redirect("/trips/" + title)
 
 
-@app.route("/trips/<trip>")
+@app.route("/deleteTrip", methods=['POST'])
 @login_required
-def selectedTrip(trip):
-    """Show data of selected Trip"""
+def deleteTrip():
+    """Delete Trip"""
 
-    selectedTripData = getSelectedTrip(trip)
-    session['selected_trip_id'] = selectedTripData['id']
-    session['selected_trip_title'] = selectedTripData['title']
-    print(type(session['selected_trip_title']))
-    selectedTripExpCategories = getTripExpensesGroupedByCategory(selectedTripData['id'], selectedTripData['SUM'])
+    # Check, if every necessary info was given
 
-    session['selected_trip_month'] = selectedTripData['startDate']
+    option = request.form['option']
+    trip_id = request.form.get("deleteTripId")
 
-    flags = db.execute("""
-    SELECT country_code
-    FROM countries
-    WHERE trip_id = :trip_id
-    """,
-    trip_id=session['selected_trip_id'])
+    db.execute("""
+        DELETE FROM countries
+        WHERE trip_id = :trip_id
+        """,
+    trip_id=trip_id)
 
-    print(flags)
+    if option == 'option1':
 
-    # All Transactions
-    allTransactions = getAllExpensesOfTrip(selectedTripData['id'])
+        db.execute("""
+            DELETE FROM transactions
+            WHERE trip_id = :trip_id
+        """,
+        trip_id=trip_id)
 
-    return render_template("trip.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries(), tripData=selectedTripData, tripCategories=selectedTripExpCategories, allTransactions=allTransactions, flags=flags)
+        db.execute("""
+            DELETE FROM trips
+            WHERE id = :trip_id
+        """,
+        trip_id=trip_id)
+
+    else:
+
+        assignedTrip = request.form.get("expTripReassign")
+
+        db.execute("""
+            UPDATE transactions
+            SET trip_id = :assignedTrip
+            WHERE trip_id = :trip_id
+        """,
+        assignedTrip=assignedTrip, trip_id=trip_id)
+
+    return redirect("/trips")
 
 
 @app.route("/trips/changeMonth/<direction>")
@@ -371,18 +424,32 @@ def getSelectedTrip(trip):
         """,
     user_id=session['user_id'], trip=trip)[0]
 
-    trip['startMonth_name'] = calendar.month_abbr[int(datetime.date.fromisoformat(trip['startDate']).month)]
-    trip['startDay'] = datetime.date.fromisoformat(trip['startDate']).day
-    trip['startYear'] = datetime.date.fromisoformat(trip['startDate']).year
+    startDate = datetime.date.fromisoformat(trip['startDate'])
+    endDate = datetime.date.fromisoformat(trip['endDate'])
 
-    trip['endMonth_name'] = calendar.month_abbr[int(datetime.date.fromisoformat(trip['endDate']).month)]
-    trip['endDay'] = datetime.date.fromisoformat(trip['endDate']).day
-    trip['endYear'] = datetime.date.fromisoformat(trip['endDate']).year
+    trip['startMonth_name'] = calendar.month_abbr[int(startDate.month)]
+    trip['startDay'] = startDate.day
+    trip['startYear'] = startDate.year
 
-    trip['duration'] = (datetime.date.fromisoformat(trip['endDate']) - datetime.date.fromisoformat(trip['startDate'])).days + 1
+    trip['endMonth_name'] = calendar.month_abbr[int(endDate.month)]
+    trip['endDay'] = endDate.day
+    trip['endYear'] = endDate.year
+
+    trip['duration'] = (endDate - startDate).days + 1
+
+    today = datetime.date.today()
+
+    if endDate >= today:
+        trip['current'] = True
 
     if trip['SUM'] != None:
-        trip['daily_average'] = format(round((trip['SUM'] / float(trip['duration'])), 2), ".2f")
+
+        if endDate >= today:
+            duration = (today - startDate).days + 1
+            trip['daily_average'] = format(round((trip['SUM'] / float(duration)), 2), ".2f")
+
+        else:
+            trip['daily_average'] = format(round((trip['SUM'] / float(trip['duration'])), 2), ".2f")
     else:
         trip['daily_average'] = '0.00'
         trip['SUM'] = '0.00'
@@ -721,6 +788,16 @@ def getTrips():
         trip['endDay'] = datetime.date.fromisoformat(trip['endDate']).day
         trip['endYear'] = datetime.date.fromisoformat(trip['endDate']).year
 
+        trip['country_codes'] = db.execute("""
+            SELECT country_code
+            FROM countries
+            WHERE trip_id = :trip_id
+            LIMIT 2
+        """,
+        trip_id=trip['id'])
+
+    print(trips)
+
     return trips
 
 
@@ -824,14 +901,9 @@ def addTrip():
     """,
     user_id=session['user_id'])[0]['id']
 
-    for country_code in countries:
-        db.execute("""
-        INSERT INTO countries (trip_id, country_code)
-        VALUES (:trip_id, :country_code)
-        """,
-        trip_id=trip_id, country_code=country_code.lower())
+    insertCountries(countries, trip_id)
 
-    return toIndexWithoutRefresh()
+    return redirect("/trips")
 
 
 # MONTH name and year
@@ -865,3 +937,12 @@ def getCountries():
     d = requests.get('https://restcountries.eu/rest/v2/all?fields=name;alpha2Code', 'r')
     return d.json()
 
+
+
+def insertCountries(countries, trip_id):
+    for country_code in countries:
+        db.execute("""
+        INSERT INTO countries (trip_id, country_code)
+        VALUES (:trip_id, :country_code)
+        """,
+        trip_id=trip_id, country_code=country_code.lower())
