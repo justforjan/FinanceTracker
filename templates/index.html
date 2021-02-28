@@ -7,7 +7,7 @@
 
 {% block body %}
 
-onload="changeMonthIndex('curr')"
+
 
 {% endblock %}
 
@@ -76,6 +76,9 @@ onload="changeMonthIndex('curr')"
 
 </div>
 
+<script>
+  document.addEventListener("DOMContentLoaded", changeMonthIndex('curr'))
+</script>
 
 {% include 'editTransactionModals.html' %}
 

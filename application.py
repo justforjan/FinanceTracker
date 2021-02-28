@@ -9,6 +9,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
+import requests
 
 
 
@@ -60,7 +61,7 @@ def index():
 
         session["selected_date"] = selectedDate.isoformat()
 
-        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), allTransactions=getAllTransactions())
+        return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries(), allTransactions=getAllTransactions())
 
         # for day in days:
         #     day['transactions'] = [{'id': transaction['id'], 'exp': transaction['exp'], 'notes': transaction['notes'], 'category': transaction['category'], 'amount': transaction['amount']} for transaction in transactions if transaction['DAY'] == day['DAY']]
@@ -142,7 +143,7 @@ def toIndexWithoutRefresh():
     transactions = getTransactionsCurrentMonth()
     days = getTransactionsCurrentMonthGroupedByDay()
 
-    return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), days=days, month=getSumPerMonth(), transactions=transactions, allTransactions=getAllTransactions())
+    return render_template("index.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries(), days=days, month=getSumPerMonth(), transactions=transactions, allTransactions=getAllTransactions())
 
 
 
@@ -158,7 +159,7 @@ def statistics():
         monthSum = getSumPerMonth()
         month = getMonthData(float(monthSum['exp_per_month']))
 
-        return render_template("statistics.html", expCategories=getExpCategories(), trips=getTrips(), month=month, monthSum=getSumPerMonth())
+        return render_template("statistics.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries(), month=month, monthSum=getSumPerMonth())
 
 @app.route("/statistics/prevMonth", methods=["GET"])
 def changeToPrevMonthStat():
@@ -204,7 +205,7 @@ def statisticCategory(category):
 
     session['selected_category'] = category
 
-    return render_template("categories.html", expCategories=getExpCategories(), trips=getTrips(), categoryLabel=category, allTransactions=allTransactions)
+    return render_template("categories.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries(), categoryLabel=category, allTransactions=allTransactions)
 
 
 @app.route("/statistics/changeMonth/<direction>", methods=["GET"])
@@ -277,7 +278,7 @@ def getAllTransactionsOfSelectedCategory(category):
 def trips():
     """Show trips"""
 
-    return render_template("trips.html", expCategories=getExpCategories(), trips=getTrips())
+    return render_template("trips.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries())
 
 
 @app.route("/editTrip", methods=['POST'])
@@ -326,10 +327,19 @@ def selectedTrip(trip):
 
     session['selected_trip_month'] = selectedTripData['startDate']
 
+    flags = db.execute("""
+    SELECT country_code
+    FROM countries
+    WHERE trip_id = :trip_id
+    """,
+    trip_id=session['selected_trip_id'])
+
+    print(flags)
+
     # All Transactions
     allTransactions = getAllExpensesOfTrip(selectedTripData['id'])
 
-    return render_template("trip.html", expCategories=getExpCategories(), trips=getTrips(), tripData=selectedTripData, tripCategories=selectedTripExpCategories, allTransactions=allTransactions)
+    return render_template("trip.html", expCategories=getExpCategories(), trips=getTrips(), countries=getCountries(), tripData=selectedTripData, tripCategories=selectedTripExpCategories, allTransactions=allTransactions, flags=flags)
 
 
 @app.route("/trips/changeMonth/<direction>")
@@ -792,9 +802,34 @@ def addTrip():
     title = request.form.get("tripTitle")
     startDate = request.form.get("startDate")
     endDate= request.form.get("endDate")
+    countries = request.form.getlist("tripCountries")
 
-    db.execute("INSERT INTO trips (user_id, title, startDate, endDate) VALUES (:user_id, :title, :startDate, :endDate)",
-                                        user_id=session['user_id'], title=title, startDate=startDate, endDate=endDate)
+    print('SELECTED COUNTRIES')
+    print(countries)
+    print(type(countries))
+    print("-----------------------------------------------")
+
+    db.execute("""
+        INSERT INTO trips (user_id, title, startDate, endDate)
+        VALUES (:user_id, :title, :startDate, :endDate)
+    """,
+    user_id=session['user_id'], title=title, startDate=startDate, endDate=endDate)
+
+    trip_id = db.execute("""
+    SELECt id
+    FROM trips
+    WHERE user_id = :user_id
+    ORDER BY id DESC
+    LIMIT 1
+    """,
+    user_id=session['user_id'])[0]['id']
+
+    for country_code in countries:
+        db.execute("""
+        INSERT INTO countries (trip_id, country_code)
+        VALUES (:trip_id, :country_code)
+        """,
+        trip_id=trip_id, country_code=country_code.lower())
 
     return toIndexWithoutRefresh()
 
@@ -825,4 +860,8 @@ def changeMonth(date, m):
     date = selectedMonth.isoformat()
 
     return date
+
+def getCountries():
+    d = requests.get('https://restcountries.eu/rest/v2/all?fields=name;alpha2Code', 'r')
+    return d.json()
 

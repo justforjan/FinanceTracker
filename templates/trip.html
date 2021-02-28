@@ -28,8 +28,8 @@ onload="changeMonthTrip('curr')"
 </div>
 
 <div class="d-flex justify-content-center mb-4">
-<img src="https://www.countryflags.io/be/flat/64.png">
-<img src="https://www.countryflags.io/bj/flat/64.png">
+  <div id="flags">
+  </div>
 </div>
 
 <div class="row text-left">
@@ -90,6 +90,12 @@ numberOfCategories = labels.length;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 <script type="text/javascript" src="/static/myChart.js"></script>
 {% endif %}
+
+<script>
+{% for flag in flags %}
+document.getElementById('flags').insertAdjacentHTML('afterend', '<img src="https://www.countryflags.io/' + '{{ flag["country_code"] }}' + '/flat/64.png">')
+{% endfor %}
+</script>
 
 
 {% include 'editTransactionModals.html' %}
