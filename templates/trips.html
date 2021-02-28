@@ -24,18 +24,23 @@
     {% for trip in trips %}
     <div class="col-lg-4 col-sm-6 mb-4">
       <div class="card text-left">
-        <div class="card-header d-flex flex-row justify-content-between" style="height: 100px;">
+        <div class="card-header d-flex flex-row justify-content-between" style="height: 80px;">
           <div class="row ml-2">
 
-              <b>{{ trip['title'] }}</b>
+              <h5><b>{{ trip['title'] }}</b></h5>
 
           </div>
         </div>
         <div class="card-body">
-          <span class="card-text mb-2">From: {{ trip['startDay'] }} {{ trip['startMonth_name'] }}. {{ trip['startYear'] }}<br>To: {{ trip['endDay'] }} {{ trip['endMonth_name'] }}. {{ trip['endYear'] }}</span>
+          <div class="mb-2">
+            <span class="card-text">From: {{ trip['startDay'] }} {{ trip['startMonth_name'] }}. {{ trip['startYear'] }}<br>To: {{ trip['endDay'] }} {{ trip['endMonth_name'] }}. {{ trip['endYear'] }}</span>
+          </div>
           <div>
-            <div id="flags">
-            </div>
+          {% for code in trip['country_codes'] %}
+
+          <img src="https://www.countryflags.io/{{ code['country_code'] }}/flat/64.png">
+
+          {% endfor %}
           </div>
           <a class="btn btn-primary" href="/trips/{{ trip['title'] }}">Go to trip</a>
         </div>
@@ -43,12 +48,5 @@
     </div>
     {% endfor %}
   </div>
-
-
-<script>
-{% for code in trips['country_codes'] %}
-document.getElementById('flags').insertAdjacentHTML('afterend', '<img src="https://www.countryflags.io/' + '{{ code["country_code"] }}' + '/flat/64.png">')
-{% endfor %}
-</script>
 
 {% endblock %}

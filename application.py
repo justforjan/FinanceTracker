@@ -792,11 +792,11 @@ def getTrips():
             SELECT country_code
             FROM countries
             WHERE trip_id = :trip_id
-            LIMIT 2
+            LIMIT 4
         """,
         trip_id=trip['id'])
 
-    print(trips)
+    print(trips[1])
 
     return trips
 
