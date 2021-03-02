@@ -1,4 +1,6 @@
-**Track your expenses more easily!**
+# Finance Tracker with the feature to assign transactions to trips
+#### Video Demo:  <URL HERE>
+#### Description:
 
 This is an expenses tracking application. I am yet to find an application, that lets me assign expenses to two categories e.g. to 'Travel' and 'Transport' at the same time.
 So, until now, while travelling I had to decide what category assign e.g. my transport expenses to.
@@ -11,14 +13,25 @@ or you can look how much you spent in one category of the first dimensions throu
 Additionally, you can check your expenses of one first-dimension-category in a certain trip.
 So, overall, you get a better overview over your expenses and you do not have to struggle with chosing which category to assign the expense to.
 
-It brings other advantages like the possibility to calculate you daily average expense during a certain trip.
+It brings other advantages like the possibility to calculate your daily average expense during a certain trip.
 
 
-The start page is an overview of your expenses and icomes. At first you see the transactions of the current month but you can switch through the months easily. This is done with AJAX. Whenever you see you transactions sorted like this, you have the opportunity to edit or delete them by clicking the respective button. You can always add transactions by hovering over the floating button at the bottom right and then selecting "Add expense" or "Add income".
+### Adding transactions and trips
+You can always add transactions and trips by hovering over the floating button at the bottom right and then selecting the respective option.
 
+
+### Start Page _(index.html)_
+The start page is an overview of your expenses and incomes. At first you see the transactions of the current month but you can switch through the months easily. This is done with AJAX. The transactions are sorted by day. This gives you the opportunity to check how much you earned and spent each day. On top you can see the same data but for wohle month. Whenever you see you transactions sorted like this, you have the opportunity to edit or delete them by clicking the respective button. You'll see this presentation of thr transations a few times. It is always used the same html document for this (_indexAJAX.html_). The name is a little bit misleading as it is not only used for the index part of the web application.
+
+
+### Statistics _(statistics.html)_
 On the second tab called "statistics" you get a litte overview of your expense per month shown as a pie chart. I used the JacaScript library "Charts.js" for that. You expenses are sorted by category and you see how high you expenses are absolutly and relatively to you total expenese per month. Here as well, you can skip through the monhts. By clicking on one of the category's name you access an overvie of you transactions assinged to this category, similarly to the start page.
 
-The third trip is an overview of you trips. By clicking on the "Go to trip" button you are shown more details about the selected trip like total expenses, average expenses per day and duration. Furthermore, there is a litte piechart, showing how much you proportionally spent in the categories during the selected trip. Beneith that, you see the expenses that you assigned to this trip. To add a trip you also have to hover over the floating button and select "Add trip". You can give your trip a name, start and end date an if you want you can chose the countries you are travelling through this trip. As a nice feature the flags of these countries are shown on top of the trip detail page as well as on the trip overview page.
+
+### Trips _(trips.html)_
+The third tab is an overview of you trips. You see all you trips sorted by start date with. Baisc information like the title, start and end date and the first few flags of the coutries you have added to this trip are shown. To get to know more detail about the trip you can click on "Go to trip". On this page (_trip.html_) you are shown more details like total expenses, duration and daily average expenses throughout your trip. In case you trip has not ended yet, the daily average expenses are calculated using the current date as the end date. To make the user aware of this, a little badge sayoing "Current" is displayed next to the daily average expenses. The flags of the countries that were added to the trip are displayed on top.
+To make this work, I used to API's. "restcountries.eu" to get all the names and 2-digit codes and "countryflags.io" to display the flags.
+
 
 And this is it. This is my way to sophisticated final project for the best lecture I have ever taken. Thank you, cs50 staff!!
 
