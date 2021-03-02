@@ -25,7 +25,7 @@ The start page is an overview of your expenses and incomes. At first you see the
 
 
 ### Statistics _(statistics.html)_
-On the second tab called "statistics" you get a litte overview of your expense per month shown as a pie chart. I used the JacaScript library "Charts.js" for that. You expenses are sorted by category and you see how high you expenses are absolutly and relatively to you total expenese per month. Here as well, you can skip through the monhts. By clicking on one of the category's name you access an overvie of you transactions assinged to this category, similarly to the start page.
+On the second tab called "statistics" you get a litte overview of your expense per month shown as a pie chart. I used the JacaScript library "Charts.js" for that. You expenses are sorted by category and you see how high you expenses are absolutly and relatively to you total expenese per month. Here as well, you can skip through the monhts. By clicking on one of the category's name you access an overview of you transactions assinged to this category, similarly to the start page. The _categories.html_ file is used for that, but it is in fact just just the _indexAJAX.html_ with some extra parts to demonstrate that only expenses of the selected category are displayed.
 
 
 ### Trips _(trips.html)_
