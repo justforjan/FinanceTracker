@@ -1,5 +1,5 @@
 # Finance Tracker with the feature to assign transactions to trips
-#### Video Demo:  <URL HERE>
+#### Video Demo:  https://youtu.be/aA5bLuLiqWE
 #### Description:
 
 This is an expenses tracking application. I am yet to find an application, that lets me assign expenses to two categories e.g. to 'Travel' and 'Transport' at the same time.
