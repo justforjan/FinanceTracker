@@ -33,6 +33,6 @@ The third tab is an overview of you trips. You see all you trips sorted by start
 To make this work, I used to API's. "restcountries.eu" to get all the names and 2-digit codes and "countryflags.io" to display the flags.
 
 
-And this is it. This is my way to sophisticated final project for the best lecture I have ever taken. Thank you, cs50 staff!!
+And this is it. This is my way too sophisticated final project for the best lecture I have ever taken. Thank you, cs50 staff!!
 
 
